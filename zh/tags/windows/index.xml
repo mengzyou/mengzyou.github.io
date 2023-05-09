@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>windows on Mengz's Space ...</title><link>/zh/tags/windows/</link><description>Recent content in windows on Mengz's Space ...</description><generator>Hugo -- gohugo.io</generator><language>en_US</language><lastBuildDate>Wed, 18 Mar 2020 14:31:38 +0800</lastBuildDate><atom:link href="/zh/tags/windows/index.xml" rel="self" type="application/rss+xml"/><item><title>WINDOWS上的DOCKER DESKTOP</title><link>/zh/posts/container-tech/docker-desktop-windows/</link><pubDate>Wed, 18 Mar 2020 14:31:38 +0800</pubDate><guid>/zh/posts/container-tech/docker-desktop-windows/</guid><description>在本系列的Docker入门中，我们介绍了容器的基本概念，以及如何在Ubuntu（Linux）上安装Docker引擎来进行容器化引用的开发。
+本篇我们介绍如何在Windows系统上安装和使用Docker，这里主要介绍在Windows 10上安装和使用Docker Desktop，对于Windows 10以下的版本，可以使用Docker Toolbox，这里就不做介绍了．
+安装Docker Desktop Docker Desktop　- The fastest way to containerize applications on your desktop，　这是Docker官方的定义，Docker Desktop为Windows和Mac提供了一个桌面化的容器开发环境，在Windows 10上，Docker Desktop使用了Windows的Hyper-V虚拟化技术，因此你需要一台打开了硬件虚化化的电脑并且安装的是Windows 10专业版以上的系统，还需要打开Hyper-V功能，如何在Windows 10上打开Hyper-V，参考这里．
+补充　：　Docker Desktop支持Windows 10 64位: 专业版，企业版，教育版 (Build 15063 或以上).
+首先在满足条件的Windows系统上下载Docker Desktop的安装包 - https://hub.docker.com/editions/community/docker-ce-desktop-windows　．安装过程是简单的，直接双击下载的安装，更具提示安装就好了，一开始我们选择使用Linux容器（之后可以其他换到使用Windows容器的方式，会单独写一篇来介绍使用Windows容器）．安装过程中安装程序会检查系统是否满足，如果不满足，安装程序会报错并结束安装．
+安装完成之后，打开 开始 菜单，然后选择 Docker Desktop 启动．
+查看状态栏上的Docker图标，一开始会显示 starting 装，等到显示Docker Desktop is running，就可以通过终端（例如 PowerSheel）来使用Docker的相关命令了，下面我们将使用Windows 10的PowerShell作为终端来进行操作．
+构建和运行容器 我们将使用一个简单Node应用来示例如何在Windows上构建容器镜像和启动一个容器．首先我们需要将代码库下载到我们的环境中，这里可以使用Git来克隆代码库或者直接下载代码包．
+在Windows上，可以使用Git for Windows，也可以使用Windows 10的WSL安装一个Ubuntu子系统，然后在Ubuntu子系统终端里安装Git，并直接使用Git克隆代码，这里我使用的是在Ubuntu子系统终端里克隆代码库到本地目录．
+如上图所示，我们把代码克隆到了D:\gitrepos\hellonode\目录，然后切换到PowerShell终端，进入该目录.　用你喜欢的文本编辑器打开hellonode\Dockerfile（推荐时候用VS Code，内容如下
+FROM node:12.2-alpine MAINTAINER Mengz You &amp;lt;mengz.you@outlook.com&amp;gt; WORKDIR /app COPY package*.</description></item></channel></rss>

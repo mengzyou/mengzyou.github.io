@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Container on Mengz's Space ...</title><link>/zh/tags/container/</link><description>Recent content in Container on Mengz's Space ...</description><generator>Hugo -- gohugo.io</generator><language>en_US</language><lastBuildDate>Fri, 22 Jul 2022 21:00:13 +0800</lastBuildDate><atom:link href="/zh/tags/container/index.xml" rel="self" type="application/rss+xml"/><item><title>轻量级Kubernetes集群-K3S</title><link>/zh/posts/sre/k8s/lightweight-k3s/</link><pubDate>Fri, 22 Jul 2022 21:00:13 +0800</pubDate><guid>/zh/posts/sre/k8s/lightweight-k3s/</guid><description>K3S 是 Rancher 为物联网（IoT）和边缘计算环境开发的轻量级 Kubernetes 发行版本。相比原生的 Kubernetes，其移除了很多非必要的组件，例如云控制管理器（CCM）、内置的（In-Tree）的存储插件等，以及为ARM架构的基础设施做了优化。
-K3s 的轻量级同时也体现在其打包成一个二进制可执行文件进行分发，状态存储除了支持 etcd 外，还支持 Sqlite3、MySQl和Postgres。其跟多特性可参考官方文档。
-K3s 支持单节集群部署（可用于开发测试环境），也支持高可用的多节点集群。同时还可以通过 k3d 项目快速在本地开发环境使用Docker容器部署 k3s 集群作为开发环境。
-这里我将演示通过虚拟机部署一个高可用的多节点集群（3个Servers节点 + 3个Agent节点）。
-k3S架构 上图是来自k3s官网的架构图，其架构与Kubernetes的架构是相似的，k3s的server节点也就是控制面节点，agent节点是工作负载节点。k3s默认使用 containerd 作为容器运行时。
-更信息的部署架构可参考官方文档。
-准备虚拟机节点 这里我们将部署 3 + 3 的集群，需要6台虚拟机，基本配置如下
-主机名 IP vCPU 内存 homek3s-server1 192.168.0.150 1 2 GB homek3s-server2 192.168.0.151 1 2 GB homek3s-server3 192.168.0.152 1 2 GB homek3s-agent1 192.168.0.154 2 4 GB homek3s-agent2 192.168.0.155 2 4 GB homek3s-agent3 192.168.0.156 2 4 GB 部署的最小需求，可参考官方文档。
-K3s 支持大部分主流的Linux操作系统，这里我使用的是 openSUSE Leap Micro 15.</description></item></channel></rss>

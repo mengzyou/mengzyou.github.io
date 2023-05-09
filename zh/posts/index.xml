@@ -1,4 +1,26 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>文章 on Mengz's Space ...</title><link>/zh/posts/</link><description>Recent content in 文章 on Mengz's Space ...</description><generator>Hugo -- gohugo.io</generator><language>en_US</language><lastBuildDate>Fri, 22 Jul 2022 21:00:13 +0800</lastBuildDate><atom:link href="/zh/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>轻量级Kubernetes集群-K3S</title><link>/zh/posts/sre/k8s/lightweight-k3s/</link><pubDate>Fri, 22 Jul 2022 21:00:13 +0800</pubDate><guid>/zh/posts/sre/k8s/lightweight-k3s/</guid><description>K3S 是 Rancher 为物联网（IoT）和边缘计算环境开发的轻量级 Kubernetes 发行版本。相比原生的 Kubernetes，其移除了很多非必要的组件，例如云控制管理器（CCM）、内置的（In-Tree）的存储插件等，以及为ARM架构的基础设施做了优化。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>文章 on Mengz's Space ...</title><link>/zh/posts/</link><description>Recent content in 文章 on Mengz's Space ...</description><generator>Hugo -- gohugo.io</generator><language>en_US</language><lastBuildDate>Sat, 18 Mar 2023 16:12:58 +0800</lastBuildDate><atom:link href="/zh/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>DIUN-容器镜像更新通知</title><link>/zh/posts/opentool/diun-intro/</link><pubDate>Sat, 18 Mar 2023 16:12:58 +0800</pubDate><guid>/zh/posts/opentool/diun-intro/</guid><description>我们通常可以将一台或多台服务器作为Docker主机，使用容器跑一些开源的工具服务。而往往我们不知道该什么时候这个这些应用有了更新的版本，最近发现了一个开源的工具，可以检查主机上运行的容器的镜像是否有更新，并可以通过集成多种渠道发送更新通知，这款工具就是 DIUN(Docker Image Update Notifier) 。
+DUIN介绍 DUIN是一款使用GO语言编写的命令行工具，可以本地运行，也可以通过容器运行（开发者提供了构建好的镜像 )，当监控的容器镜像在相应的注册表（Registry）中更新时，可以接收到相应的通知。
+DUIN支持多种监控配置（Providers）：
+Docker - 分析Docker主机上运行容器的镜像，并检查其更新 Podman - 类似Docker，需要Podman以服务方式启动 Kubernetes - 分析Kubernetes集群中的Pods，检查pod使用的镜像 Swarm - 分析Swarm集群中服务使用的镜像 Nomad - 类似Docker，分析Nomad引擎运行的镜像 Dockerfile - 分析Dockerfile中引用的镜像 File - yaml格式的配置文件，直接配置需要检查的镜像信息 DUIN支持集成多种通知渠道，例如 Discord， Slack，Matrix，Telegram 以及 Webhook 等。
+DUIN使用示例 这里将演示在Docker主机上使用Docker Compose来运行duin服务，并集成Slack，将通知发送到相应的频道。
+docker-compose.yml :
+services: diun: image: crazymax/diun:latest container_name: diun hostname: home200-diun command: serve volumes: - diundata:/data - &amp;#34;/var/run/docker.sock:/var/run/docker.sock&amp;#34; environment: - &amp;#34;TZ=Asia/Shanghai&amp;#34; - &amp;#34;LOG_LEVEL=info&amp;#34; - &amp;#34;LOG_JSON=false&amp;#34; - &amp;#34;DIUN_WATCH_WORKERS=20&amp;#34; - &amp;#34;DIUN_WATCH_SCHEDULE=0 */6 * * *&amp;#34; - &amp;#34;DIUN_WATCH_JITTER=30s&amp;#34; - &amp;#34;DIUN_PROVIDERS_DOCKER=true&amp;#34; - &amp;#34;DIUN_PROVIDERS_DOCKER_WATCHBYDEFAULT=true&amp;#34; - &amp;#34;DIUN_NOTIF_SLACK_WEBHOOKURL=https://hooks.</description></item><item><title>最小化静态WEB容器实践</title><link>/zh/posts/container-tech/smallest-web-container/</link><pubDate>Sun, 20 Nov 2022 15:24:22 +0800</pubDate><guid>/zh/posts/container-tech/smallest-web-container/</guid><description>在现代的B/S架构应用中，我们会做前后端分离，某些前端Web服务会将编译完成的静态文件放到一个web服务器进行部署。例如，我的博客也是基于Hugo编译的静态文件来进行部署的。
+那在容器化部署模式下，我们需要基于一个web服务的基础容器（镜像）将静态文件构建成站点或者Web服务的容器镜像来进行部署。在Docker开发最佳实践中，我们应该尽量保持镜像足够小（Size大小）。因此，我们应该尽量选择满足我们需求的web服务基础镜像足够小。
+大部分情况下，我们会选择Nginx作为我们的web服务器，一开始我也是这么选择的，因为社区在Docker Hub上为我们提供了开箱即用的容器镜像，下面来看看我用来构建静态web服务的过程。
+Nginx On Alpine 我们知道在容器构建的实践中，我们可以选择基于AlpineLinux为分发系统的镜像，其比其他（例如 ubuntu, centos等）的镜像会小很多。因此一开始我们也是选择基于Alpine的nginx镜像，例如 nginx:1.22-alpine。
+$ docker image pull nginx:1.22-alpine $ docker image ls | grep nginx nginx 1.22-alpine 23.5MB 可以看到其大小为 23.5MB 。
+基于该惊醒构建我的博客的发布镜像
+FROM mengzyou/hugo:0.106 AS builder COPY --chown=hugo:hugo . /home/hugo/app RUN hugo FROM nginx:1.22-alpine COPY --from=builder /home/hugo/app/public/ /usr/share/nginx/html $ docker build -t myblog:nginx . $ docker image ls --format &amp;#34;{{.Repository}}\t{{.Tag}}\t{{.Size}}&amp;#34; | grep myblog myblog nginx 29MB 构建出来而最终交付镜像的大小为 29MB 。
+Easyhttpd On Alpine 后来，我发现了一个用GoLang编写的轻量级web服务器 - easyhttpd，于是我Fork了该项目，编写了一个Dockerfile来构建该web服务器的镜像，具体可查看该文件内容。</description></item><item><title>IaC示例-TERRAFORM&amp;ANSIBLE创建K3S集群</title><link>/zh/posts/devops/k3s-terraform-ansible/</link><pubDate>Thu, 13 Oct 2022 12:18:27 +0800</pubDate><guid>/zh/posts/devops/k3s-terraform-ansible/</guid><description>轻量级Kubernetes集群-K3S文章介绍了一个轻量级的 Kubernetes 发行版本 - k3s 。
+这篇文章，我们将通过使用以下几个 IaC（Infrastructure as Code）工具，在本地环境（例如你的 Linux 工作台）自动化部署一个可用的 K3S 集群
+Packer - HashiCorp 开源的一个系统镜像构建工具。 Terraform - HashiCorp 开源的基础设施及代码自动化管理工具。 Ansible - RedHat赞助的一个开源社区项目，IT自动化配置工具。 环境需求 本演示将的所有操作将在一台支持虚拟化（kvm + qemu + libvirt) Linux 主机上执行。
+在 Ubuntu 上启用虚拟化环境，请参考 KVM hypervisor: a beginner&amp;rsquo;s guide 。
+在 Fedora 上启用虚拟化环境，请参考 Getting startyed with virtualization (libvirt) 。
+在 openSUSE 上启用虚拟化环境，请参考 Virtualization Guide 。
+其他 Linux 发行版，请参考相关文档。
+我是在我的笔记本电脑上执行的操作，系统是 openSUSE Leap 15.4 。
+除了上述的虚拟化需求外，还需要在系统上安装上面提到的几个工具。如果你的环境中有 LinuxBrew，则可通过 Brew 直接安装
+❯ brew install packer terraform ansible 否则，请下载各自官方发布的二进制包，解压后放到 PATH 路径中。</description></item><item><title>轻量级Kubernetes集群-K3S</title><link>/zh/posts/k8s/lightweight-k3s/</link><pubDate>Fri, 22 Jul 2022 21:00:13 +0800</pubDate><guid>/zh/posts/k8s/lightweight-k3s/</guid><description>K3S 是 Rancher 为物联网（IoT）和边缘计算环境开发的轻量级 Kubernetes 发行版本。相比原生的 Kubernetes，其移除了很多非必要的组件，例如云控制管理器（CCM）、内置的（In-Tree）的存储插件等，以及为ARM架构的基础设施做了优化。
 K3s 的轻量级同时也体现在其打包成一个二进制可执行文件进行分发，状态存储除了支持 etcd 外，还支持 Sqlite3、MySQl和Postgres。其跟多特性可参考官方文档。
 K3s 支持单节集群部署（可用于开发测试环境），也支持高可用的多节点集群。同时还可以通过 k3d 项目快速在本地开发环境使用Docker容器部署 k3s 集群作为开发环境。
 这里我将演示通过虚拟机部署一个高可用的多节点集群（3个Servers节点 + 3个Agent节点）。
@@ -6,11 +28,359 @@ k3S架构 上图是来自k3s官网的架构图，其架构与Kubernetes的架构
 更信息的部署架构可参考官方文档。
 准备虚拟机节点 这里我们将部署 3 + 3 的集群，需要6台虚拟机，基本配置如下
 主机名 IP vCPU 内存 homek3s-server1 192.168.0.150 1 2 GB homek3s-server2 192.168.0.151 1 2 GB homek3s-server3 192.168.0.152 1 2 GB homek3s-agent1 192.168.0.154 2 4 GB homek3s-agent2 192.168.0.155 2 4 GB homek3s-agent3 192.168.0.156 2 4 GB 部署的最小需求，可参考官方文档。
-K3s 支持大部分主流的Linux操作系统，这里我使用的是 openSUSE Leap Micro 15.</description></item><item><title>Markdown示例</title><link>/zh/posts/markdown-sample/</link><pubDate>Mon, 08 Jun 2020 08:06:25 +0600</pubDate><guid>/zh/posts/markdown-sample/</guid><description>这是一个示例帖子，旨在测试以下内容：
+K3s 支持大部分主流的Linux操作系统，这里我使用的是 openSUSE Leap Micro 15.</description></item><item><title>扩展你的KUBECTL功能</title><link>/zh/posts/k8s/kubectl-plugins/</link><pubDate>Mon, 04 Jul 2022 15:37:12 +0800</pubDate><guid>/zh/posts/k8s/kubectl-plugins/</guid><description>随着 Kubernetes 成为主流的应用容器编排平台，其命令行客户端 kubectl 也成为了我们日常部署应用，维护集群最常用的工具。
+kubectl 自身提供了强大的内置自命令来满足我们对集群的操作，例如 get 获取集群内的资源对象，proxy 创建代理之类的，除了内置的这些自命令，kubectl 还提供了可扩展的能力，允许我们安装自己编写或者社区提供的插件来增强我们使用 kubectl 的生产力。
+这里将给大家介绍如何在安装 kubectl 扩展插件，以及几款我在日常工作中常用到的社区提供的插件。
+在安装和使用 kubectl 插件的之前，请确保以及安装和配置好 kubectl 命令行工具和 git 工具。
+krew 首先介绍的第一款扩展插件就是 krew - k8s特别兴趣小组开发的一款用于安装和管理 kubectl 扩展插件的插件。
+代码： https://github.com/kubernetes-sigs/krew
+安装 krew (在macOS/Linux上):
+在终端执行（Bash或者Zsh）执行 ( set -x; cd &amp;#34;$(mktemp -d)&amp;#34; &amp;amp;&amp;amp; OS=&amp;#34;$(uname | tr &amp;#39;[:upper:]&amp;#39; &amp;#39;[:lower:]&amp;#39;)&amp;#34; &amp;amp;&amp;amp; ARCH=&amp;#34;$(uname -m | sed -e &amp;#39;s/x86_64/amd64/&amp;#39; -e &amp;#39;s/\(arm\)\(64\)\?.*/\1\2/&amp;#39; -e &amp;#39;s/aarch64$/arm64/&amp;#39;)&amp;#34; &amp;amp;&amp;amp; KREW=&amp;#34;krew-${OS}_${ARCH}&amp;#34; &amp;amp;&amp;amp; curl -fsSLO &amp;#34;https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz&amp;#34; &amp;amp;&amp;amp; tar zxvf &amp;#34;${KREW}.tar.gz&amp;#34; &amp;amp;&amp;amp; .</description></item><item><title>开始使用DOCKER COMPOSE V2</title><link>/zh/posts/container-tech/docker-compose-v2/</link><pubDate>Thu, 02 Jun 2022 18:53:16 +0800</pubDate><guid>/zh/posts/container-tech/docker-compose-v2/</guid><description>Compose V2 项目启动于2021年6月，直到2022年4月26号，发布了GA版本。在发布GA版本后，社区也宣布对于Compose V1将不会再进行功能更新，将在6个月后结束生命周期（EOL），期间会进行关键的安全和错误修复。
+V1与V2的兼容对比 确保 V1 和 V2 之间的兼容性对于日常工作流程至关重要，下面是V2中两个关键的更改
+更改 潜在影响 迁移 V2原生支持BuildKit，并且默认开启 开发者在V2中将默认使用BuildKit进行镜像构建 可通过设置环境变量不使用 DOCKER_BUILDKIT=0 容器名字中使用 - 替代了 _ 作为分隔符 如果在脚本中使用了容器名字，这可能会导致错误 可以通过 &amp;ldquo;&amp;ndash;compatibility&amp;rdquo; 标记来关闭此更改 关于更多的兼容性更改，请查看兼容性文档
+如何安装Compose V2 Windows，MacOS和Linux上使用Docker Desktop，就自带了Compose V2，可通过命令 docker compose 执行。也可以通过配置“Use Docker Compose V2“来设置 docker-compose 别名到 docker compose。
+如果没有使用Docker Desktop for Linux，而是直接使用的Docker Engine，则需要额外安装 docker-compose-plugin 或者独立的二进制包。
+例如对于Ubuntu,可以通过Docker官方的APT源直接安装
+❯ sudo apt update ❯ sudo apt install docker-compose-plugin 其他Linux, 例如在我的 openSUSE 上，通过手动从Github下载二进制文件进行安装（注意选择版本和平台架构）
+❯ DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker} ❯ mkdir -p $DOCKER_CONFIG/cli-plugins ❯ wget https://github.</description></item><item><title>DOCKER SBOM镜像物料清单</title><link>/zh/posts/container-tech/docker-sbom/</link><pubDate>Mon, 09 May 2022 12:58:16 +0800</pubDate><guid>/zh/posts/container-tech/docker-sbom/</guid><description>在上个月发布的Docker Desktop v4.7.0中，增加了一个新的CLI插件-docker/sbom-cli-plugin，其为Docker CLI增加了一个子命令 - sbom，用于查看Docker容器镜像的软件物料清单（SBOM)。
+什么是SBOM？ 首先介绍下什么是SBOM（Software Bill of Materials），我们称之为软件物料清单，是软件供应链中的术语。软件供应链是用于构建软件应用程序（软件产品）的组件、库和工具的列表，而物料清单则声明这些组件、库的清单，类似于食品的配料清单。软件物料清单可以帮助组织或者个人避免使用有安全漏洞的软件。
+DOCKER SBOM命令 注意: 从Docker Desktop 4.7.0版本开始到现在，docker sbom 命令还是实验性的，该功能也许会在以后版本中删除和更改，当前Linux的Docker CLI还未包含该子命令。
+docker sbom 命令用于生产一个容器镜像的软件物料清单（SBOM）
+WSL - mengz  docker sbom --help Usage: docker sbom [OPTIONS] COMMAND View the packaged-based Software Bill Of Materials (SBOM) for an image. EXPERIMENTAL: The flags and outputs of this command may change. Leave feedback on https://github.com/docker/sbom-cli-plugin. Examples: docker sbom alpine:latest a summary of discovered packages docker sbom alpine:latest --format syft-json show all possible cataloging details docker sbom alpine:latest --output sbom.</description></item><item><title>管理远程DOCKER主机</title><link>/zh/posts/container-tech/docker-context-remote/</link><pubDate>Sun, 08 May 2022 09:05:27 +0800</pubDate><guid>/zh/posts/container-tech/docker-context-remote/</guid><description>在Docker v19.03版本之前，我们可以使用DOCKER_HOST环境变量来配置和连接远程Docker主机，自从Docker v19.03版本开始，Docker的命令行接口（CLI）增加了一个子命令 - context，用于管理docker客户端连接多个上下文环境。
+通过context命令，可通过配置SSH协议的上下文连接并管理远程多个Docker主机，同时从一台安装了Docker CLI的机器导出上下文环境，并在另一台安装了Docker CLI的机器导入。
+context子命令 首先可以通过&amp;ndash;help选项查看命令支持的子命令：
+ docker context --help Usage: docker context COMMAND Manage contexts Commands: create Create a context export Export a context to a tar or kubeconfig file import Import a context from a tar or zip file inspect Display detailed information on one or more contexts ls List contexts rm Remove one or more contexts update Update a context use Set the current docker context Run &amp;#39;docker context COMMAND --help&amp;#39; for more information on a command.</description></item><item><title>升级OPENSUSE LEAP</title><link>/zh/posts/linux/opensuse-upgrade/</link><pubDate>Sat, 15 Jan 2022 10:04:00 +0800</pubDate><guid>/zh/posts/linux/opensuse-upgrade/</guid><description>openSUSE Leap 15.2自2022年1月4日起已结束生命周（EOL），还在使用该系统的用户未来将不会再收到任何形式的安全与维护更新。
+建议所有用户尽快将系统升级到 - openSUSE Leap 15.3，该系统将获得安全补丁和更新直至2022年11月。下一个版本openSUSE Leap 15.4也将预计在2022年6月发布。
+喜欢滚动更新版的的朋友，也可以借此机会从Leap版本切换到Tumbleweed版本。
+openSUSE Leap的版本升级可以通过联网在线升级，也可以通过下载最新版本的ISO文件进行线下升级，这里面我们将看看如何在线升级。
+openSUSE Leap在线升级 使用在线升级的方式有如下优势：
+只需要下载需要更新的软件包，将节省不少带宽 在升级期间，虽然不推荐，但是你任然可以使用系统，只有在升级完成后需要重新启动 因为不需要下载ISO镜像文件，所以不需要DVD驱动器或者刻录USB启动盘，需要的仅仅是网络 当然在线升级也有如下缺点：
+如果由于某些原因，导致升级过程被中断（例如突然断电，网络连接断开），升级进程无法继续，这有可能会留下一个被破坏的系统 如果有多个系统需要升级，那么下载ISO镜像可能会更省带宽 注意，如果你使用的是更旧的Leap版本，例如 15.1，请先升级到15.2之后，再升级到15.3 。
+你可以使用如下命令查看当前版本
+&amp;gt; lsb_release -d Description: openSUSE Leap 15.2 虽然正常的升级不会导致用户数据的丢失，但是为了安全，建议在升级之前备份自己重要的个人数据。
+升级系统之前的准备 首先检查更新源是否存在并更新当前发行版本的软件包 # zypper repos --uri ... 29 | repo-update | 主更新源 | Yes | ( ) No | No | https://mirrors.tuna.tsinghua.edu.cn/opensuse/update/leap/15.2/oss/ 30 | repo-update-non-oss | 主更新源（非开源软件) | Yes | ( ) No | No | https://mirrors.</description></item><item><title>DOCKER LIVERESTORE特性</title><link>/zh/posts/container-tech/docker-live-restore/</link><pubDate>Sun, 19 Dec 2021 11:59:17 +0800</pubDate><guid>/zh/posts/container-tech/docker-live-restore/</guid><description>我们都知道Docker是C/S模式架构，通过客户端（CLI）访问Docker Daemon来创建和管理容器的。在默认情况下，当daemon终止的时候，会停止所有运行的容器。
+因此我们需要对Docker Daemon进行升级或者某些需要重启的维护操作时，都需要导致运行着的容器跟着重新启动。
+Live Restore 其实，Docker提供了一个特性，可以使得在Daemon不可用的时候，保持容器继续运行，这样就减少了在Daemon进行升级或者出现问题的时候容器的停机时间。那这个特性就叫做Live Restore 。
+通过为Docker Daemon增加以下配置来开启Live Restore特性。在Linux上，默认的配置文件 /etc/docker/daemon.json 里添加
+{ &amp;#34;live-restore&amp;#34;: true } 然后重启docker服务。如果使用systemd管理服务，可以通过reload来避免重启docker服务
+sudo systemctl reload docker.service 其他情况下，可以发送 SIGHUP 信号给dockerd进程。
+对于Windows和MacOS上的Docker Desktop，可以通过Desktop节目的Daemon高级配置来开启Live Restore。
+配置完成后，可以尝试重启Docker Daemon来查看容器是否会保持继续运行。重启之前查看容器的启动时间
+ WSL -   mengz  docker container inspect portainer_edge_agent -f &amp;#39;{{ .State.StartedAt }}&amp;#39; 2021-12-18T09:50:59.761725785Z 然后执行 sudo systemctl restart docker.service，在查询一次容器的启动时间，将发现启动时间未发生变化，这说明了容器并没有重启。
+Live Restore的限制 当前的Live Restore特性可以在进行Daemon维护，或者在Daemon发生问题导致不可用的情况，减少容器的停机时间，不过其也有一定的限制。
+Docker版本升级限制 Live Restore仅支持Docker补丁版本升级时可用，也就是 YY.MM.x 最后一位发生变化的升级，而不支持大版本的升级。在进行大版本升级后，可能会导致Daemon无法重新连接到运行中容器的问题，这时候需要手动停止运行的容器。
+Daemon选项变更 也就是说Live Restore仅仅在某些Daemon级别的配置选项不发生改变的情况工作，例如Bridge的IP地址，存储驱动类型等。如果在重启Daemon时候，这些选项发生了改变，则可能会到Daemon无法重新连接运行中的容器，这时也需要手动停止这些容器。
+影响容器的日志输出 如果Daemon长时间停止，会影响运行容器的日志输出。因为默认情况下，日志管道的缓冲区大小为64k，当缓冲写满之后，必须启动Daemon来刷新缓冲区。
+不支持Docker Swarm Live Restore只是独立Docker引擎的特性，而Swarm的服务是由Swarm管理器管理的。当Swarm管理器不可用时，Swarm服务是可以在工作节点上继续运行的，只是不同通过Swarm管理器进行管理，直到Swarm管理恢复工作。</description></item><item><title>SYSTEMD定时服务</title><link>/zh/posts/linux/systemd-timer/</link><pubDate>Fri, 03 Dec 2021 15:17:07 +0800</pubDate><guid>/zh/posts/linux/systemd-timer/</guid><description>我上一篇文章中介绍的locate文件查找命令，需要依赖updatedb更新索引才能快速查找文件，因此需要定时运行该命令来更新文件索引。我们知道在Linux和类Unix系统上通常使用crontab来创建定时任务。
+在Ubuntu上我们使用apt install mlocate之后，会安装一个脚本文件到 /etc/cron.daily/mlocate，也就是通过Cron机制来每天执行updatedb。然而在我的openSUSE上却并未发现有相关的Crontab配置，但我发现索引文件还是在每天的零点进行了更新，那这个定时任务是谁来执行的呢？
+我通过查找与mlocate相关的文件，发现了以下几个文件：
+❯ locate &amp;#34;mlocate&amp;#34; /etc/systemd/system/timers.target.wants/mlocate.timer /usr/lib/systemd/system/mlocate.service /usr/lib/systemd/system/mlocate.timer 原来在openSUSE系统上，使用的是Systemd的定时单元来实现的。Systemd是一种Linux系统服务管理程序，在我之前的文章在OPENSUSE上使用SYSTEMCTL管理系统服务中介绍过。
+那这里我们将重点介绍下Systemd的定时服务（systemd timer unit）。
+systemd定时单元 类似与Cron，systemd的定时单元在Linux系统上提供了机制来调度任务，相比于Cron机制，其他具有以下特性（在使用systemd作为初始化和服务管理的系统上）：
+调度的任务可以依赖于其他systemd服务 可以使用systemctl命令来管理定时单元，类似与管理systemd服务 除了类似Cron的循环实时定时任务（realtime）之外，还支持一种基于非时间事件触发的任务（monotonic） 定时单元记录日志到systemd的日志系统（journal），因此方便于统一监控和诊断 systemd定时任务的类型 上面的特性中，我们提到其支持两种类型 - realtime 和 monotonic
+Realtime - 类似于Cron，这种类型的定时任务由定义的绝对时间来触发，在配置文件中通过 OnCalendar 选项来定义 Monotonic - 这种类型的定时任务将会在指定的事件（例如系统启动，服务激活）一定时间后触发，在配置文件中通过 OnBootSec 和 OnUnitActiveSec ，OnStartupSec 等选项来定义，并且该类型的定时任务触发时间不是固定的，在每一次系统重启之后都会被重置 systemd定时任务的配置 在文章开始，我们在寻找mlocate更新文件索引的定时任务时看到，有文件 /usr/lib/systemd/system/mlocate.timer ，没错，就是通过以 .timer 作为扩展名的systemd单元文件来定义systemd的定时单元的
+[Unit] Description=Daily locate database update Documentation=man:updatedb [Timer] OnCalendar=daily AccuracySec=12h Unit=mlocate.service Persistent=true [Install] WantedBy=timers.target 可以看到文件格式与systemd服务的单元文件类似，不过需要 [Timer] 段，在该段定义了如下选项
+OnCalendar=daily，意思是每天触发 AccuracySec=12h，意思是由于某些原因需要推测执行的时间 Unit=mlocate.service，这里就是指定了需要执行的任务服务 Persistent=true，指定如果由于关机等原因到时了为能执行任务的情况下，启动会立即触发该任务 那该定时单元指定了 mlocate.service 作为触发执行的任务，也就是 /usr/lib/systemd/system/mlocate.</description></item><item><title>文件系统查找工具</title><link>/zh/posts/opentool/find-files/</link><pubDate>Fri, 03 Dec 2021 09:28:38 +0800</pubDate><guid>/zh/posts/opentool/find-files/</guid><description>众所周知，在Linux或者类Unix的文件系统中，想通过文件名关键字查找文件，可以通过find命令。那本文将推荐2款可以快速查找文件的工具，性能比find命令更好，可在某些场景下替换find的使用。
+mlocate 大部分的Linux发行版的都提供了 mlocate 软件包，该软件包包含了一个locate命令用于查找文件，和一个updatedb命令用于更新文件索引供locate使用。
+可直接通过系统的软件包管理工具直接安装
+# CentOS/RHEL $ sudo dnf install mlocate # Debian/Ubuntu $ sudo apt install mlocate 安装完成后，首先需要执行以下命令进行文件索引
+sudo updatedb 索引文件将默认存放在 /var/lib/mlocate/mlocatedb ，也可以修改配置文件 /etc/updatedb.conf 文件，添加某些不需要索引的文件夹，例如
+# Paths which are pruned from updatedb database PRUNEPATHS=&amp;#34;/tmp /var/tmp /var/cache /var/lock /var/run /var/spool /mnt /cdrom /usr/tmp /proc /media /sys /.snapshots /var/run/media&amp;#34; 完成索引之后，就可以使用 locate 命令进行文件查找了，例如
+$ locate mlocate /etc/systemd/system/timers.target.wants/mlocate.timer /usr/bin/rpmlocate /usr/lib/systemd/system/mlocate.service /usr/lib/systemd/system/mlocate.timer /usr/sbin/rcmlocate /usr/share/doc/packages/mlocate /usr/share/doc/packages/mlocate/AUTHORS /usr/share/doc/packages/mlocate/ChangeLog /usr/share/doc/packages/mlocate/NEWS /usr/share/doc/packages/mlocate/README /usr/share/licenses/mlocate /usr/share/licenses/mlocate/COPYING /usr/share/man/man5/mlocate.db.5.gz /var/lib/mlocate /var/lib/mlocate/mlocate.</description></item><item><title>TF执行计划可视化</title><link>/zh/posts/devops/tf-rover/</link><pubDate>Fri, 26 Nov 2021 16:13:46 +0800</pubDate><guid>/zh/posts/devops/tf-rover/</guid><description>之前我们通过一篇文章入门了使用Terrafrom以声明式配置文件（可版本化的代码）来创建和管理基础设施资源。
+在使用命令terraform apply之前，我们通常使用terraform plan来查看执行计划，输出的执行计划以类似“git diff”的文本方式描述。这里我们将介绍如何以图形可是化的方式来了解执行计划。
+Terrafrom Graph 首先Terraform CLI工具自带了一个子命令 - graph，graph命令用于生产配置和执行计划的图形表示，其输出是DOT格式，可以通过Graphviz转化为图片，例如在Linux终端下
+❯ terraform graph | dot -Tsvg &amp;gt; graph.svg 对于简单的项目（管理的资源对象比较的情况），我们可以通过这个图形了解资源对象的关系。但是如果一个项目管理了大量的资源对象，使用graph生成的图形会显得错中复杂，而且图形文件也比较庞大。
+那接下我们将介绍一款开源的可视化工具。
+Rover Rover是一款开源的，可交互的Terraform配置和执行计划可视化工具，其通过Web服务的方式，是我们可以通过浏览器查看生成的图形，并进行一些交互操作。
+使用Rover非常容易，可以从其Github项目的Release下载为各平台编译好的二进制文件（命令）来运行，也可以通过Docker容器的方式运行。
+如果使用下载的二进制文件，将下载好的二进制文件（例如 rover_v0.2.2）放到PATH路径下，例如 /usr/local/bin/rover，接下來在Terraform项目的文件夹下执行
+❯ rover 2021/11/26 16:59:34 Starting Rover... 2021/11/26 16:59:34 Initializing Terraform... 2021/11/26 16:59:35 Generating plan... 2021/11/26 16:59:37 Parsing configuration... 2021/11/26 16:59:37 Generating resource overview... 2021/11/26 16:59:37 Generating resource map... 2021/11/26 16:59:37 Generating resource graph... 2021/11/26 16:59:37 Done generating assets. 2021/11/26 16:59:37 Rover is running on 0.</description></item><item><title>解读OPEN GITOPS 1.0</title><link>/zh/posts/devops/open-gitops/</link><pubDate>Thu, 25 Nov 2021 20:16:10 +0800</pubDate><guid>/zh/posts/devops/open-gitops/</guid><description>GitOps的概念以及提出了几年时间了，伴随着DevOps的发展也来越流行。简单地说，GitOps是一套操作和管理软件系统的原则，其源自于现代软件运维，也根植于之前存在和广泛采用的最佳实践。虽然其名字中包含Git，但其所表示的是与版本控制系统相关，而不仅限于Git工具。也可以说其是一个运维框架，它将 DevOps 最佳实践用于应用程序开发，例如版本控制、协作、合规性和 CI/CD 工具，并将它们应用于基础设施自动化。
+去年，来自Amazon和Azure，Codefresh，Github，Redhat，Weaveworks等具有云原生经验公司的工程师们在云原生计算基金会（CNCF）下组建了一个GitOps工作组，并创建了OpenGitOps项目。
+GitOps工作组在上个月（10/09）发布了OpenGitOps原则和术语1.0版本。
+OpenGitOps 1.0 GitOps工作组的联合主席 - Leonardo Murillo说过，“很多人认为他们在做GitOps，因为他们正在使用git，并且使用拉取请求（Pull Request）和推送更改（Push Changes）。而我们希望社区开始看到GitOps不仅仅是使用git的CI/CD流水线，其还包含很多”。
+工作组首先定义了GitOps的核心原则和相关术语，而我们可以用自己的方式自由地解释这些原则，并通过相关的DevOps工具实现最佳实践。
+发布的1.0版本由两个简单的原则和术语文档组成，每一个原则都讨论了系统的需求状态（Desired State）以及它应该如何运行。
+GitOps所管理的系统的需求状态必须满足
+声明式的（Declarative） - GitOps管理的系统必须以声明的方式表达其所需要的状态。 版本化和不可变（Versioned &amp;amp; Immutable） - 系统所需要的状态将以不可变、版本化的方式存储，以及保留完整的版本历史信息。 自动拉取（Pulled Automatically） - 软件代理会自动从源中提取所需的状态声明。 持续调节（Continuously Reconciled） - 软件代理持续观察系统状态并尝试达到系统所需要的状态。 进一步解读 声明式的状态应该很好理解，声明式的描述不应该包含如何达到需求状态的操作，而仅仅描述系统或者应用所需要的状态。例如可使用Terraform来描述和管理一个基础设施，也可以使用Kubernetes的应用部署文件（mainfest）来管理部署的应用。
+版本化和不可变通常理解为是用“git”，其实不仅限于此，这里更加强调的是使用具体的版本标签来定义系统的一个版本状态，而不应该使用例如“latest”之类的标签，因为其不能回退到之前所需要的状态。而其他版本管理系统，只要满足这样的版本标签功能，以及符合团队的协作方式，都可用于GitOps。
+自动拉取意味着我们必须有一个系统内的代理持续观测系统的状态，其需要时时刻刻知道系统所需要的状态和当前状态，而不是在触发确切的更改时才去获取系统得到状态。这里的拉取（Pull）明确地表明了其于CI/CD流水线由条件来触发的不同。
+而持续调节将以上三个部分整合，系统内的代理必须时刻了解管理的系统的实际状态和所需的状态，当发现实际状态和所需的状态由偏差时，或者发现所需状态被改变时（版本改变），其应该尽力时系统状态达到所需求的状态。而这一切都是由系统自动完成的。
+当团队遵循以上原则来管理和维护系统和应用时，才是对GitOps的真正实践。
+OpenGitOps发展 OpenGitOps 1.0仅仅定义了部分实现GitOps的原则，接下来还需要扩展更多的定义，例如如何在GitOps环境中处理事件管理，安全管理，凭证管理等。如果我们的基础设施环境以及我们的应该出现故障，那么在GitOps中应该遵循怎么样的处理原则？
+期待CNCF GitOps工作组的进一步工作。</description></item><item><title>迁移本地项目到TF CLOUD</title><link>/zh/posts/devops/tf-cloud/</link><pubDate>Thu, 25 Nov 2021 10:49:14 +0800</pubDate><guid>/zh/posts/devops/tf-cloud/</guid><description>之前文章我们尝试了在本地环境使用Terraform来创建和管理AWS Lightsail资源，对于管理一些云资源，我们需要在本地安装相应的CLI工具和配置访问相应云资源的凭据（例如AWS CLI， AccessKeyID等），Terraform通过调用本地的CLI工具或者云API来管理云资源的状态，其默认使用的是local类型的Backend，资源的状态文件(.tfstate)也是保存在本地文件目录中的。
+这篇文章我们将尝试使用remote类型的Backend，将项目迁移到Terraform Cloud去执行，并且由Terraform Cloud来管理资源状态。
+什么是Terraform Cloud Terraform Cloud 是一个管理Terraform在一致且可靠的环境中运行的SaaS应用，从而可以替换在本地机器是执行Terraform项目，其存储共享的状态和机密数据，并可以连接到版本控制系统（如 Git)，使得我们可以在团队中将基础设施作为代码进行工作。
+Terraform是一个商业应用，团队和商业使用将会收取费用并提供了更多的高级功能。但对于个人用户，可以免费使用基本的功能。关于费用和功能详情，可以参考 (https://www.hashicorp.com/products/terraform/pricing)。
+首先我们需要注册一个Terraform Cloud的账号，访问 https://app.terraform.io/public/signup/account ，根据提示注册账号
+注册完成后第一次登陆Terraform Cloud，其会询问如何开始一个项目，这里我们选择 Start from scratch，也就是将从一个空模板开始
+接下来我们需要创建一个组织（Organization），例如这里我创建一个名为 learn-terraform 的组织，一个组织就类似要给命名空间，可以管理多个工作空间（Workspace），还可以管理其下工作空间共享的变量和环境变量。
+接下来我们需要在本地环境登录Terraform Cloud，并添加相应的配置来重新初始化项目。
+重新初始项目 完成了Terraform Cloud的账号注册之后，我们需要在本地终端运行 terraform login ，会打开浏览器来登录账号得到一个Token值，将其复制填入终端完成登录
+&amp;gt; terrafrom login Terraform must now open a web browser to the tokens page for app.terraform.io. If a browser does not open this automatically, open the following URL to proceed: https://app.terraform.io/app/settings/tokens?source=terraform-login --------------------------------------------------------------------------------- Generate a token using your browser, and copy-paste it into this prompt.</description></item><item><title>TF管理AWS LIGHTSAIL实例</title><link>/zh/posts/devops/tf-aws-lightsail/</link><pubDate>Tue, 23 Nov 2021 13:42:41 +0800</pubDate><guid>/zh/posts/devops/tf-aws-lightsail/</guid><description>Terraform是一种开源基础设施及代码（IaC）的工具，可提供一致的CLI（命令行接口)工作流来管理数百个云服务，将云API编码为声明性的配置文件进行管理。
+本文创建一个管理AWS Lightsail实例的例子来入门Terraform的使用。
+安装Terraform CLI 要使用Terramform，首先要在本地系统安装Terraform命令行工具。HashiCorp提供了预编译好的二进制分发包，可以通过(https://www.terraform.com/downolads.html) 直接下载相应平台的二进制包，解压后放到相应的执行路径。也可以通过一些软件包管理工具安装，例如在Linux/OS X上通过LinuxBrew/HomeBrew进行安装，在Windows上通过Chocolatey进行安装。
+这里我们示例在Linux上是使用LinuxBrew进行安装
+&amp;gt; brew install terraform 安装完成后，可以查看其版本
+❯ terraform -version Terraform v1.0.11 on linux_amd64 使用-help查看其可用命令，安装成功后，我们就可以使用Terraform来创建相应的基础设施项目了。
+AWS账号准备 本文将通过创建一个管理AWS Lightsial实例的项目来尝试Terraform，因此需要一个AWS账号，以及在本地环境安装和配置好AWS CLI工具的访问凭据。
+安装和配置AWS CLI，请参考其文档 (https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) 。 配置完成之后，可以在本地命令行终端访问相应的AWS资源。
+创建并初始化Terraform项目 Terraform在本地通过文件夹来管理一个基础设施项目的声明性代码，例如我们在本地创建一个文件夹
+&amp;gt; mkdir mylightsail &amp;gt; cd mylightsail/ 进入文件夹后，创建一个以 .tf 作为后缀的文件，例如 main.tf
+&amp;gt; touch main.tf 然后使用编辑器打开文件进行编辑，写入以下代码块
+terraform { required_providers { aws = { source = &amp;#34;hashicorp/aws&amp;#34; version = &amp;#34;~&amp;gt; 3.65&amp;#34; } } } # Configure the AWS Provider provider &amp;#34;aws&amp;#34; { region = &amp;#34;ap-southeast-1&amp;#34; } 其中 terraform/required_providers 块定义了该项目需要的 Provider，Terraform是通过不同的Provider来管理相应的基础设施资源的，可到 (https://registry.</description></item><item><title>Windows10上安装WSL2</title><link>/zh/posts/windows/windows10-wsl2/</link><pubDate>Tue, 08 Jun 2021 16:42:22 +0800</pubDate><guid>/zh/posts/windows/windows10-wsl2/</guid><description>现在Windows （10）是越來越向Linux靠近了，对于开发者开说，特别是在Windows上的Linux子系统非常好用。
+WSL2（Windows Subsystem for Linux ）是Windows 10上的一个工具，允许开发人员在Windows上直接运行Linux环境，使得在Windows系统上进行Linux的原生体验。
+对于WSL2，其底层通过微软的内置虚拟化技术（Hyper-V）实现Linux的环境。本文将一步步知道如何在Windows 10上启用WSL2，并安装一个Ubuntu 20.04分发版本的Linux。
+前提条件 想要在Windows 10上启用WLS2，需要满足以下条件：
+Windows 10 版本 1903 Build 19362，或高于该版本 如果是ARM64的系统，则需要版本2004 Build 19041，或高于该版本 步骤一　- 为WSL启用Windows服务 想要在Windows 10上运行WSL，首先需要启用Windows上的一些服务，这些服务默认是关闭的。
+开始菜单，搜索 PowerShell，右键 PowerShell，选择使用管理员运行。
+在打开的 PowerShell 终端，执行如下命令：
+PS C:\Windows\system32&amp;gt; dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart [dism.exe]是Windows的部署映像服务和管理工具，上面的命令开启了WSL的功能。
+以上命令执行成功之后，继续执行如下命令来开启Hyper-V的功能
+PS C:\Windows\system32&amp;gt; dism.exe /online /enable-feature /featurename:VirutalMachinePlatform /all /norestart 完成以上操作之后，需要重启Windows操作系统，重启之后再次登陆系统。
+接下来需要从微软下载一个最新的Linux内核升级包并安装，下载安装包 wsl_update_x64.msi，下载完成后直接安装。
+完成之后，以管理员身份运行 PowerShell，执行如下命令来设置wsl使用的默认版本
+PS C:\Windows\system32&amp;gt; wsl --set-default-version 2 这里我们将默认设置为 wsl 2 。
+上述步骤就完成了WSL2的启用，接下来将使用WSL2安装基于Linux的发行版本（Ubuntu 20.04）。
+步骤二　- 使用WSL安装Ubuntu 20.</description></item><item><title>加载virtio驱动的Windows10安装镜像</title><link>/zh/posts/windows/windows10-virtio-image/</link><pubDate>Tue, 08 Jun 2021 16:42:22 +0800</pubDate><guid>/zh/posts/windows/windows10-virtio-image/</guid><description>如今虚拟化已经非常流行，当我们使用Linux桌面环境时，可以通过安装libvirt和QEMU直接使用基于内核的虚拟化（KVM）来创建虚拟机并安装其他类型的操作系统。在基于Linux的服务器上，也可以通过oVirt或者PVE等基于KVM的虚拟化方案来实现虚拟机环境。
+当我们想通过官方iso系统镜像安装比较新的Windows（例如Windows 10，Windows Server 2019等），在进入到选择安装磁盘，会发现找不到创建的虚拟磁盘，如下图所示
+这是因为在官方的iso镜像中的Widnows未包含针对KVM的virtio-win驱动，因此我们可以基于Windows的iso镜像，加载virtio-win的相应驱动之后，重新创建一个包含了virtio-win驱动的iso镜像文件。
+关于virtio-win的更多信息，可以参考 https://www.linux-kvm.org/page/WindowsGuestDrivers/Download_Drivers 。
+前提条件 为了创建一个加载virtio-win驱动之后的iso镜像文件，我们需要以下准备：
+具有管理员权限的Windows 10工作系统并安装Windows ADK Windows 10的安装iso文件（这里以Windows 10作为例子） virtio-win驱动的iso文件 (https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.196-1/virtio-win-0.1.196.iso) UltraISO工具 准备工作 创建工作目录 假设在你的Windows 10系统上有D盘，那我们在D盘创建相应的工作目录，以管理员权限打开PowerShell，并执行
+PS D:\&amp;gt; mkdir D:\mnt\windows_temp,D:\mnt\boot,D:\mnt\install,D:\virtio-win 提取Windows安装文件 使用UltraISO工具打开windows 10的iso文件，并将所有文件提取到目录 *D:\mnt\windows_temp* 下
+然后给Windows的镜像文件授权读写
+PS D:\&amp;gt; attrib -r C:\mnt\windows_temp\sources\*.wim /s 提取virtio驱动文件 使用UltraISO打开下载的virtio-win的iso文件，同样提取到目录 *D:\virtio-win* 下，然后查看有哪些w10（针对windowns10）的驱动
+我们可以看到在 0.1.196 版本中，包含了以下w10（64位）的驱动，为了方便后面一条命令加载所有驱动，我们把这些驱动重新放到一个目录下
+PS D:\&amp;gt; cd virtio-win\ PS D:\virtio-win\&amp;gt; mkdir w10 PS D:\virtio-win\&amp;gt; cp -r .\Balloon\w10\amd64\ .\w10\Balloon PS D:\virtio-win\&amp;gt; cp -r .\NetKVM\w10\amd64\ .\w10\NetKVM PS D:\virtio-win\&amp;gt; cp -r .</description></item><item><title>本地环境运行MQTT容器</title><link>/zh/posts/container-tech/docker-mqtt-broker/</link><pubDate>Wed, 10 Mar 2021 14:14:54 +0800</pubDate><guid>/zh/posts/container-tech/docker-mqtt-broker/</guid><description>在我们的本地开发环境（Windows, Mac or Linux），我们可以很容易地使用Docker容器的方式，跑一个MQTT的Broker起来，方便我们的应用开发调试MQTT相关的功能。这里我们以Emqx作为MQTT的Broker来做示例。
+环境准备 首先需要在我们本地的Workstation上安装Docker环境:
+Windows - 如果是Windows 10，推荐使用Docker Desktop或者WSL2，如果是10一下版本，可以使用Docker Toolbox，或者在Windows上跑一个Linux虚拟机，直接在虚拟机里安装Docker Mac - 使用Docker Desktop Linux - 直接安装Docker引擎 如果选择使用Docker Desktop，可以参考 Windows上的Docker Desktop 。
+Docker运行emqx容器 Emqx的开发者已经构建了可用的容器映像，放在Docker Hub上，所以我们这里不需要自己构建映像，而是直接从Docker Hub上拉取
+$ docker image pull emqx/emqx:v4.0.5 如果是在Windows上使用Docker Desktop，则上面的命令是在PowerShell里执行。
+使用如下的命令直接启动一个emqx的容器
+$ docker image container run --name dev_emqx -d -p 18083:18083 -p 1883:1883 emqx/emqx:v4.0.5 启动成功后，我们可以使用命令查看运行情况
+$ docker container ls docker container ls CONTAINER ID NAMES IMAGE CREATED ago STATUS PORTS COMMAND 7c93940c07a3 dev_emqx emqx/emqx:v4.0.5 39 minutes ago ago Up 39 minutes 4369/tcp, 5369/tcp, 6369/tcp, 8080/tcp, 8083-8084/tcp, 8883/tcp, 0.</description></item><item><title>一体化CI/CD平台</title><link>/zh/posts/devops/single-application-cicd/</link><pubDate>Mon, 25 Jan 2021 14:22:16 +0800</pubDate><guid>/zh/posts/devops/single-application-cicd/</guid><description>前言 匆匆忙忙结束了2020年，想着还是要在2021年的第一个月要写一篇文章。在看了[Gitlab]推送的文章之后，自己也比较认同在DevOps实践中如果使用一个一体化的CI/CD平台或者工具所能带来的好处。
+不过每个组织或者团队有自身的一些考量和实际情况，就比如的当前我在工作中也使用了多个工具来实现整个CI/CD流程，似乎是分离了CI和CD的过程，因为公司更加考量了做交付的稳定性和安全性考量，并没有做到完全的持续发布。
+所以这篇文章仅仅是探讨一些一体化CI/CD平台可以带来的优势。
+CI/CD 持续继承和交付（CI/CD）改变了我们构建，测试和部署软件应用的方式。CI/CD工具自动化这些流程，减少错误率，并且优化了整个工作流。代码在整个开发阶段中进行自动化测试，已确保在错误到达生产之前就将其捕获并修复。
+CI/CD工具的使用将持续增加并改善软件开发的方式，应的部署也不再需要是每年一次，每个季度一次，甚至每个月一次。通过CI/CD，开发运维团队可以一天内部署多次。
+10个CI/CD的优点 上面说了什么是CI/CD，那接下来我们看看其有哪些优点。
+1. 更少的交接
+在开发管道中更多的交接，那将带来更多的故障点和更多的复杂性。
+2. 增加开发速度
+通过CI/CD，开发的所有阶段都更快，整个过程中更快的迭代速度使每个团队的工作效率更高，开发人员也可以更有信心地转移到其他项目。
+3. 更多的部署
+每两周或更长时间发生一次的发布，现在可以每天推送多次。
+4. 更快的测试
+开发工作流程中一个比较耗时的部分被移除，开发人员可以从事其他高价值的项目。自动化测试让团队可以更快速地获得反馈，并尽早失败，而不是在生产中产生这些错误，或者更糟糕地将错误带到最终的发布版本中。
+5. 更少的代码缺陷
+通过开发流程中引入自动化测试，在代码缺陷发生时就能及时捕获，并避免代码合并入主分支。这样可以确保整体上的具有更高的代码质量，并且每个发布版本都能按预期工作。
+6. 增强合规性
+合规性任务可以纳入开发生命周期，减少发布不合规应用的风险。自动化合规检查使得更容易完成审核，并可以防止高代价的错误。
+7. 更多的创新时间
+花费在集成维护的时间越少，IT支出不变，也就意味着可以更多的时间投入到其他地方。
+8. 更开心的开发者 开发人员能够更有自信地工作和快速地修复缺陷，而不是等上几个星期来了解错误发生在哪里。
+9. 减少管理费用
+组织中开发人员的时间是有限的，开发时间是可计费时间的很多倍，而手动测试和部署代码可能会破坏整个IT预算。自动化的工作流程减少了手动任务，可以使预算更加有效。
+. 流程一致性
+开发流程中具有更高的自动化程度意味着没人会忘记该过程中执行的步骤，也使得构建更加一致。这样更容易培训新的开发人员，组织也可以更加容易控制如何构建，以及何时进行发布。
+一体式CI/CD优势 上面概述了CI/CD可以带来的好处，然而在实际的实践中，如何真正地衡量生产力速度，需要评估整个软件开发生命周期（SDLC），而不仅仅是点点滴滴。
+无缝地持续集成和交付应具有使应用程序为部署做好准备所需的一切，不幸的是，很多使用CI/CD的组织由于使用的工具而陷入了无法达到最佳工作流程的困境。
+一个可以在整个软件开发生命周期提供可见性的应用程序是确保和优化每个开发阶段的最佳方法，当一切都在一个屋檐下时，就容易发现流程的瓶颈，以及评估影响开发速度的每一个元素。
+在单个DevOps平台下的每个步骤都提供了一条信息，可就是否准备好合并代码做出明智的决定。当然，所有这些步骤可以在没有一体式CI/CD的解决方案的情况下执行，但是功能全面的工具可以创建单一的事实来源，在此情况下，可以更快地监视每个步骤，并减少遗漏错误的可能性。
+一体式CI/CD平台带来以下好处：
+整个软件开发生命周期的可见性 所有开发阶段的单一真实来源 无需登陆多个应用程序 在一个界面上导航更简单 只需要安装，维护，扩展，备份一个应用程序 更容易的授权管理 降低运营费用 因此，推荐在组织或团队中构建单一的CI/CD平台来加速应用创新，例如选择使用 Gitlab，Github，以及各大公有云提供商发行的DevOps平台及工具来优化整个CI/CD流水线。</description></item><item><title>K8S健康检查最佳实践</title><link>/zh/posts/k8s/health-checks/</link><pubDate>Tue, 08 Dec 2020 17:32:26 +0800</pubDate><guid>/zh/posts/k8s/health-checks/</guid><description>我们都知道分布式系统非常难以管理，很大的一个原因是要是整个系统的可用性，是需要所有的部件（服务）都正常工作。如果一个小的部件不可用，系统应该可以检测到，绕过该部件，然后修复它，而且这样的行为应该可以自动进行。
+健康检查就是一个简单方法，使系统可以知道应用（服务）的一个实例是否正常工作。如果一个实例能正常工作，那其他服务不应该访问它或者向它发送请求，请求应该发送到健康的实例。而系统应该恢复应用的监控状态。
+当我们使用 Kubernetes 来运行和管理我们的应用（服务），默认情况下当一个Pod里的所有容器都启动后，就向该Pod发送相应的流量，并且当容器崩溃的时候重启容器。在一般情况下，这个行为也是可以接受的，不过k8s还提供了对容器的健康检查机制，可以让我们的部署更加健壮。
+在演示如何具体配置K8S的健康检查之前，让我们来看看什么健康探测模式（Health Probe Pattern）?
+健康探测模式 当我们设计一个关键任务，高可用的应用时，弹性是我们需要考虑的最重要方面之一。当一个应用能快速从失败中恢复，那个这个应用就是具有弹性的。
+为了保证基于k8s部署的应用是高可用的，在设计集群时，我们需要遵从特定的设计模式。而健康探测就是其中的一种模式，它定义了应用如何向系统（k8s）报告它自己的健康状态。
+这里所谓的健康状态不仅仅是Pod是否启动及运行，还应包括其是否可以正常处理请求并响应，这样k8s就可以更加合理地进行流量路由以及负载均衡。
+Kubernetes的健康探测 我们都知道，k8s通过各种控制器对象（Deployment, StatefulSets等）来监控Pod的状态，如果一个控制器检测到Pod由于某些原因崩溃，它就会尝试重新启动Pod，或者把Pod调度到其他节点上进行启动。然而，Pod是可以报告自己的状态的，例如一个使用Nginx作为web服务器的应用，通过Deployment部署到集群里并正常启动，这个时候检测到Pod的的状态是运行着的，但是可能由于某些原因导致访问web服务时确返回500（内部服务错误），对请求者来说该服务是不可用的状态。
+默认情况下，k8s的kubelet继续地探测容器的进程，当探测到进程退出，它会重启容器的Pod，有些情况下重启可以让容器恢复正常。但像上面的例子，容器的进行正常运行，而应用却返回500错误，并不能正确地探测到应用的健康状态。
+因此，k8s提供了两个类型的探测： 存活探测（Liveness Probe），就绪探测（Readiness Probe）。
+存活探测（Liveness Probe） 很多应用在长时间运行，或者遇到某种错误进入死锁状态，除非重启，否则无法恢复。因此k8s提供存活探测（Liveness Probe）来发现并恢复这种状态，当然存活探测检查到错误时，kubelet将对Pod采取重启操作来恢复应用
+就绪探测（Readiness Probe） 有时应用会暂时性的不能对外提供网络服务，例如在负载比较大的是偶，或者在应用启动的时候可能需要加载大量数据或做一些初始化的动作，需要一定时间来准备对外提供服务。
+这样的情况下，系统探测到应用实例不可用时，不应该杀死应用重启，而是应该分配流量，不往该实例发送请求（通过配置服务负载）。
+因此，k8s提供了就绪探测来发现并处理这种情况，发现Pod里的容器为就绪时，会设置应用的service(k8s资源对行)移除该实例的Endpoint（服务端点），使得流量然过该不可用的服务实例，等待探测起就绪后，再将其端点添加回相应的服务。当然如果应用是第一次启动，则会等待就绪探测成功后才会将其添加到服务端点。
+Kubernetes探测方法 那系统如何来探测容器的健康状态呢？k8s支持配置三种探测方法： 执行命令，TCP，HTTP 。
+三种方法都可以应用到存活和就绪探测。
+执行命令 通过在容器内执行命令来判断容器的状态，如果命令返回值为 0，则认为容器是健康的；如果返回值为非 0，则认为容器是不健康的。
+这种方式一般在容器运行的应用没有提供HTTP的服务，也没有任何TCP端口启动来提供服务的情况，而可以通过运行一个命令来确定应用是否健康。
+下面是配置一个Pod使用命令
+apiVersion: v1 kind: Pod metadata: name: app spec: containers: - image: example/app:v1 name: app livenessProbe: exec: command: - cat - /tmp/healthy initialDelaySeconds: 5 上面的示例就使用命令 cat /tmp/healthy 来进行存货探测，如果容器里不存在 /tmp/healthy 文件，则命令返回非0值，k8s则认为容器不健康，这里使用了存活探测，因此会重启该Pod。
+TCP 那TCP方式，就是通过尝试向容器监听的端口建立TCP连接来确定其是否健康，如果能成功建立连接，则认为健康，否则不健康。</description></item><item><title>在LINUX上配置WIREGUARD</title><link>/zh/posts/linux/wireguard-vpn/</link><pubDate>Thu, 03 Dec 2020 11:56:29 +0800</pubDate><guid>/zh/posts/linux/wireguard-vpn/</guid><description>什么是 WireGuard ？ 其官方宣称是快速、现代以及安全的VPN隧道（Fast, Modern, Secure VPN Tunnel）。
+WireGuard使用了最先进的加密技术，相比 IPSec 更简单更精简，而且拥有几乎超越 OpenVPN 的性能。其最初是针对Linux内核发布的，但是现在已经跨平台（Windows, MacOS, BSD, Android, iOS等）可部署。
+接下来这篇How To系列文章，就来一步步在Ubuntu (Linux)上安装和配置WireGuard VPN，其中一台云主机运行Ubuntu-20.04用作VPN服务器，另一台本地的linux桌面环境作为VPN客户端。
+服务器端安装WireGuard 这里我们的服务器使用的是操作系统为Ubuntu 20.04的云主机，对于如何创建并配置一台云主机，可以选择 [DigitalOcean]（https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-20-04）。
+这里我们我们已经配置好一台Ubuntu 20.04的云主机，并且可以通过SSH访问。首先对系统进行安全更新
+$ sudo apt update $ sudo apt upgrade 接下来直接使用APT安装WireGuard软件包
+$ sudo apt install wireguard 会同时安装 wireguard-tools 软件包，我们需要使用其工具进行相关的配置。
+配置WireGuard服务端 进入root权限进行操作，为服务端生产私有/公共密钥对
+$ sudo -i \# cd /etc/wireguard/ \# umask 077 \# wg genkey | tee privatekey | wg pubkey &amp;gt; publickey 执行完上述命令后，我们会在目录 /etc/wireguard/ 下生产两个密钥文件 privatekey 和 publickey 。</description></item><item><title>LINUX上统计网络接口数据包</title><link>/zh/posts/linux/network-packets/</link><pubDate>Wed, 02 Dec 2020 15:15:03 +0800</pubDate><guid>/zh/posts/linux/network-packets/</guid><description>在Linux系统上，我们可以通过 ip , netstat 或者 [ethtool] 命令显示网络接口丢弃数据包的统计信息。接下来我们看看如何使用每个命令。
+使用netstat按接口显示数据包 其实 netstat 命令已经过时，可使用命令 ip 和 ss 来代替。但是 netstat 依然在一些旧的Linux分发版本上可用，因此在 ip/ss 不可用的情况，我们可以使用netstat，其语法如下
+netstat -i netstat --interfaces 例如
+~$ netstat -i Kernel Interface table Iface MTU Met RX-OK RX-ERR RX-DRP RX-OVR TX-OK TX-ERR TX-DRP TX-OVR Flg docker0 1500 0 188180 0 0 0 151852 0 0 0 BMRU eth0 1500 0 472368 0 0 0 375351 0 0 0 BMRU lo 65536 0 51687 0 0 0 51687 0 0 0 LRU vethc8f46ea 1500 0 136984 0 0 0 79587 0 0 0 BMRU 如果想显示每种协议的概要统计信息，可以执行</description></item><item><title>DOCKERFILE构建最佳实践</title><link>/zh/posts/container-tech/dockerfile-best/</link><pubDate>Wed, 15 Jul 2020 16:36:58 +0800</pubDate><guid>/zh/posts/container-tech/dockerfile-best/</guid><description>在进行应用容器化的实践中，我们可以使用多种方式来创建容器镜像，而使用Dockerfile是我们最常用的方式。 而且在实现CI/CD Pipeline的过程中，使用Dockerfile来构建应用容器也是必须的。
+本文不具体介绍Dockerfile的指令和写法，仅仅是在实践中积累的一些写好一个Dockerfile的小提示，体现在一下几个方面：
+减少构建时间 减小镜像大小 镜像可维护性 重复构建一致性 安全性 减小构建时间 首先来看看下面这个Dockerfile
+FROM ubuntu:18.04 COPY . /app RUN apt-get update RUN apt-get -y install ssh vim openjdk-8-jdk CMD [“java”,”-jar”,”/app/target/app.jar”] 要减小构建的时间，那我们可以例如Docker构建的缓存特性，尽量保留不经常改变的层，而在Dockerfile的指令中， COPY和RUN都会产生新的层，而且缓存的有效是与命令的顺序有关系的。
+在上面的Dockerfile中，COPY . /app在RUN apt-get ...之前，而COPY是经常改变的部分，所以每次构建都会到导致RUN apt-get ...缓存失效。
+Tip-1 : 合理利用缓存，而执行命令的顺序是会影响缓存的可用性的。
+要减小构建时间，另一方面是应该仅仅COPY需要的东西，对于上面这个Dockerfile的目的，应该仅仅需要COPY Java应用的jar文件。
+Tip-2 : 构建过程中仅仅COPY需要的东西。
+上面的Dockerfile对apt-get命令分别使用了两个RUN指令，会生成两个不同的层。
+Tip-3 : 尽量合并最终镜像的层数。
+还有对于这个示例，我们最终是想要一个JRE环境来运行Java应用，因此可以选择一个jre的镜像来作为基础镜像，这样不用花时间再去安装jdk。
+Tip-4 : 选择合适的基础镜像
+这样我们可以把Dockerfile写成：
+FROM ubuntu:18.04 RUN apt-get update \ &amp;amp;&amp;amp; apt-get y install ssh vim openjdk-8-jdk COPY target/app.jar /app CMD [“java”,”-jar”,”/app/app.</description></item><item><title>Markdown示例</title><link>/zh/posts/markdown-sample/</link><pubDate>Mon, 08 Jun 2020 08:06:25 +0600</pubDate><guid>/zh/posts/markdown-sample/</guid><description>这是一个示例帖子，旨在测试以下内容：
 不同的帖子作者。 目录 降价内容渲染。 数学渲染。 表情符号渲染。 Markdown语法渲染 标题 The following HTML &amp;lt;h1&amp;gt;—&amp;lt;h6&amp;gt; elements represent six levels of section headings. &amp;lt;h1&amp;gt; is the highest section level while &amp;lt;h6&amp;gt; is the lowest.
 Markdown Syntax Rendering Headings The following HTML &amp;lt;h1&amp;gt;—&amp;lt;h6&amp;gt; elements represent six levels of section headings. &amp;lt;h1&amp;gt; is the highest section level while &amp;lt;h6&amp;gt; is the lowest.
 H1 H2 H3 H4 H5 H6 Paragraph Xerum, quo qui aut unt expliquam qui dolut labo.</description></item><item><title>短代码示例</title><link>/zh/posts/shortcodes/</link><pubDate>Mon, 08 Jun 2020 08:06:25 +0600</pubDate><guid>/zh/posts/shortcodes/</guid><description>这是一个示例帖子，旨在测试以下内容：
 默认英雄形象。 不同的短代码。 告警 该主题可用以下告警。
 这是 type=&amp;quot;success&amp;quot; 的告警。 这是 type=&amp;quot;danger&amp;quot; 的告警。 这是 type=&amp;quot;warning&amp;quot; 的告警。 这是 type=&amp;quot;info&amp;quot; 的告警。 这是 type=&amp;quot;dark&amp;quot; 的告警。 这是 type=&amp;quot;primary&amp;quot; 的告警。 这是 type=&amp;quot;secondary&amp;quot; 的告警。 图像 没有任何属性的示例图像 {{&amp;lt; img src=&amp;quot;/posts/shortcodes/boat.jpg&amp;quot; title=&amp;ldquo;海上的一艘船&amp;rdquo; &amp;gt;}}
 设置高宽属性的示例图像 {{&amp;lt; img src=&amp;quot;/posts/shortcodes/boat.jpg&amp;quot; height=&amp;ldquo;400&amp;rdquo; width=&amp;ldquo;600&amp;rdquo; title=&amp;ldquo;海上的一艘船&amp;rdquo; &amp;gt;}} 设置高宽属性中间对齐的图像 {{&amp;lt; img src=&amp;quot;/posts/shortcodes/boat.jpg&amp;quot; height=&amp;ldquo;400&amp;rdquo; width=&amp;ldquo;600&amp;rdquo; align=&amp;ldquo;center&amp;rdquo; title=&amp;ldquo;海上的一艘船&amp;rdquo; &amp;gt;}} 带有float属性的图像 {{&amp;lt; img src=&amp;quot;/posts/shortcodes/boat.jpg&amp;quot; height=&amp;ldquo;200&amp;rdquo; width=&amp;ldquo;500&amp;rdquo; float=&amp;ldquo;right&amp;rdquo; title=&amp;ldquo;海上的一艘船&amp;rdquo; &amp;gt;}}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras egestas lectus sed leo ultricies ultricies.</description></item></channel></rss>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras egestas lectus sed leo ultricies ultricies.</description></item><item><title>WINDOWS上的DOCKER DESKTOP</title><link>/zh/posts/container-tech/docker-desktop-windows/</link><pubDate>Wed, 18 Mar 2020 14:31:38 +0800</pubDate><guid>/zh/posts/container-tech/docker-desktop-windows/</guid><description>在本系列的Docker入门中，我们介绍了容器的基本概念，以及如何在Ubuntu（Linux）上安装Docker引擎来进行容器化引用的开发。
+本篇我们介绍如何在Windows系统上安装和使用Docker，这里主要介绍在Windows 10上安装和使用Docker Desktop，对于Windows 10以下的版本，可以使用Docker Toolbox，这里就不做介绍了．
+安装Docker Desktop Docker Desktop　- The fastest way to containerize applications on your desktop，　这是Docker官方的定义，Docker Desktop为Windows和Mac提供了一个桌面化的容器开发环境，在Windows 10上，Docker Desktop使用了Windows的Hyper-V虚拟化技术，因此你需要一台打开了硬件虚化化的电脑并且安装的是Windows 10专业版以上的系统，还需要打开Hyper-V功能，如何在Windows 10上打开Hyper-V，参考这里．
+补充　：　Docker Desktop支持Windows 10 64位: 专业版，企业版，教育版 (Build 15063 或以上).
+首先在满足条件的Windows系统上下载Docker Desktop的安装包 - https://hub.docker.com/editions/community/docker-ce-desktop-windows　．安装过程是简单的，直接双击下载的安装，更具提示安装就好了，一开始我们选择使用Linux容器（之后可以其他换到使用Windows容器的方式，会单独写一篇来介绍使用Windows容器）．安装过程中安装程序会检查系统是否满足，如果不满足，安装程序会报错并结束安装．
+安装完成之后，打开 开始 菜单，然后选择 Docker Desktop 启动．
+查看状态栏上的Docker图标，一开始会显示 starting 装，等到显示Docker Desktop is running，就可以通过终端（例如 PowerSheel）来使用Docker的相关命令了，下面我们将使用Windows 10的PowerShell作为终端来进行操作．
+构建和运行容器 我们将使用一个简单Node应用来示例如何在Windows上构建容器镜像和启动一个容器．首先我们需要将代码库下载到我们的环境中，这里可以使用Git来克隆代码库或者直接下载代码包．
+在Windows上，可以使用Git for Windows，也可以使用Windows 10的WSL安装一个Ubuntu子系统，然后在Ubuntu子系统终端里安装Git，并直接使用Git克隆代码，这里我使用的是在Ubuntu子系统终端里克隆代码库到本地目录．
+如上图所示，我们把代码克隆到了D:\gitrepos\hellonode\目录，然后切换到PowerShell终端，进入该目录.　用你喜欢的文本编辑器打开hellonode\Dockerfile（推荐时候用VS Code，内容如下
+FROM node:12.2-alpine MAINTAINER Mengz You &amp;lt;mengz.you@outlook.com&amp;gt; WORKDIR /app COPY package*.</description></item><item><title>GITHUB ACTIONS工作流</title><link>/zh/posts/devops/github-actions/</link><pubDate>Thu, 05 Mar 2020 17:31:54 +0800</pubDate><guid>/zh/posts/devops/github-actions/</guid><description>这篇文章以一个简单的Nodejs应用为例，示例如何使用Github Actions来自动构建，测试和部署一个应用．
+什么是Github Actions 首先简单介绍下什么是Github Actions？　Github Actions是Github官方提供的一个与Github集成在一起的CI/CD工具，使用Github Actions可以非常容易地自动化你的所有软件工作流程，包括持续集成（CI）和持续发布（CD）．
+不过要使用Github Actions，你需要将你的项目代码库放在Github上，然后为代码库配置相应的工作流（Workflows）．　Actions Runner 使用Github Actions来执行工作流任务，还需要一个可执行的环境，Actions Runner就是提供这样的环境，Github Actions支持两种类型的Runner:
+Github-Hosted Runner : 由Github官方提供和维护的Runner服务器，不需要用户自己维护和更新，有支持Linnux，Windows，macOS环境的构建 Self-Hosted Runner : 用户自己使用本地机器，云服务器安装Actions应用，用户可以自定义硬件，软件等需求 Actions 在Github Actions中有一个Action的概念，Actions是一个独立的任务，你可以组合这些任务成为要完成一个工作的步骤.　在工作步骤中，你可以自己写执行命令组成Action，也可以直接使用Github社区提供的针对一个写公共任务的Actions，可以到Github市场查找社区或者其他开发人员编写的Actions．　例如一个最常用的Action - checkout，可用来检出代码库：
+- uses: actions/checkout@v2 除了以上概念之外，Github Actions还有其他概念需要了解，具体可参考　(https://help.github.com/en/actions/getting-started-with-github-actions/overview)
+Nodejs应用示例 接下来，我们就那个简单的nodejs应用来看看如何使用Github Actions创建CI/CD的流程．
+首先，你的项目代码库需要放在Github上，例如　https://github/mengzyou/hellonode/ ，访问你的代码库主页，然后点击 Actions 进入Actions页面．
+根据你的代码库的语言类型，Github推荐了一些Workflow的模板，这里我们将使用Nodejs的模板　直接点击 Set up this workflow 来应用这个模板，然后Github会直接打来Web编辑器来编辑这个模板文件
+你可以直接使用该文件，也可以修改，添加需要的Actions，完成之后可以点击　Start commit 按钮来提交Workflow文件，Github会自动为代码库创建目录　.github/workflows/，以及把该文件放在该目录下，例如　.github/workflows/nodejs.yml .　提交之后，Github Actions就会根据Workflow的内容开始运行相应的工作．
+创建一个执行测试CI工作流 其实我们也可以直接编辑本地代码库，添加目录　.github/workflows/｀，以及创建相应的Workflows配置文件，例如我们创建一个　.github/workflows/nodejs.yml`　name: Node.js CI on: push: branches: - master jobs: build: runs-on: ubuntu-latest container: node:12.</description></item><item><title>DOCKER运行微信桌面客户端</title><link>/zh/posts/container-tech/docker-wechat/</link><pubDate>Tue, 25 Feb 2020 13:36:58 +0800</pubDate><guid>/zh/posts/container-tech/docker-wechat/</guid><description>今天借助Github用户huan的盒装微信项目，在我的openSUSE Leap系统上使用Docker成功地运行封装的Windows上的微信客户端。
+安装Docker 在Linux系统上安装Docker引擎是很容器的，请参考Docker入门，如果你也使用的是openSUSE Leap，执行如下命令安装Docker引擎:
+$ sudo zypper ref $ sudo zypper in docker 启动微信客户端 注意： 在启动之前，需要设置主机系统的X服务的访问控制，使用如下的命令禁用主机上X服务的访问控制，允许所有客户端链接服务：
+$ xhost + 关于[xhost]的更多信息，可参考(https://www.computerhope.com/unix/xhost.htm)。
+huan/docker-wechat提供了一个启动脚本dochat.sh来执行容器镜像的下载，以及启动，可直接执行如下操作：
+$ curl -sL https://raw.githubusercontent.com/huan/docker-wechat/master/dochat.sh | bash 当然也可以克隆Git代码库，然后执行dochat.sh脚本。
+成功启动后如下图所示，使用手机扫描登录。
+使用Docker Compose启动 dochat.sh是直接使用了docker run命令启动容器，也可以编写一个compose文件来使用docker-compose管理应用容器。例如我在目录 ~/dockerapp/ 下创建了一个 dochat.yml 文件。
+version: &amp;#39;2.4&amp;#39; services: dochat: image: zixia/wechat container_name: dockerapps_dochat network_mode: bridge devices: - &amp;#34;/dev/video0:/dev/video0&amp;#34; - &amp;#34;/dev/snd:/dev/snd&amp;#34; volumes: - &amp;#34;/etc/localtime:/etc/localtime:ro&amp;#34; - &amp;#34;$HOME/.dochat/appdata:/home/user/.wine/drive_c/user/Application Data/&amp;#34; - &amp;#34;$HOME/.dochat/wechatfiles:/home/user/WeChat Files/&amp;#34; - &amp;#34;/tmp/.X11-unix:/tmp/.X11-unix&amp;#34; environment: - &amp;#34;DISPLAY=unix$DISPLAY&amp;#34; - &amp;#34;XMODIFIERS=@im=fcitx&amp;#34; - &amp;#34;GTK_IM_MODULE=fcitx&amp;#34; - &amp;#34;QT_IM_MODULE=fcitx&amp;#34; - &amp;#34;AUDIO_GID=492&amp;#34; - &amp;#34;VIDEO_GID=484&amp;#34; - &amp;#34;GID=100&amp;#34; - &amp;#34;UID=1000&amp;#34; - &amp;#34;DOCHAT_DEBUG=true&amp;#34; ipc: host privileged: true 首次启动时使用命令docker-compose -f ~/dockerapp/dochat.</description></item><item><title>DOCKER构建容器化应用</title><link>/zh/posts/container-tech/docker-container-app/</link><pubDate>Thu, 13 Feb 2020 17:34:10 +0800</pubDate><guid>/zh/posts/container-tech/docker-container-app/</guid><description>这是Docker快速开始系列的第二篇，在对我们的应用进行容器化之前，请先阅读第一篇安装好Docker环境。
+介绍 我们在开发主机（开发环境）上安装好Docker之后，我们就可以开始发开容器化应用，通常按照以下步骤：
+为应用的每个组件创建Docker镜像，然后通过镜像运行容器并测试． 编写 docker stack 文件或者Kubernetes的 YMAL　文件，将容器和支持的基础设施集装到一个完整应用程序. 测试，分享和部署你的整个容器化的应用程序． 在这个快速的教程里，我们将专注在第一个步骤：创建容器将基于的镜像．
+准备Dockerfile 我们将使用Docker的一个培训项目示例docker-training/node-bulletin-board，按照如下步骤
+从Github克隆示例代码（首先你需要在环境中安装好Git） $ git clone -b v1 https://github.com/docker-training/node-bulletin-board $ cd node-bulletin-board/bulletin-board-app/ 这是一个简单的公告板应用示例代码，使用node.js编写．现在，我们需要容器化该应用．
+在代码目录下，有一个Dockerfile文件，该文件描述了如何为一个容器封装一个私有文件系统，以及包含一些描述如何运行容器的元数据，文件内容如下 FROM node:8.9.4-alpine WORKDIR /usr/src/app COPY package.json . RUN npm install COPY . . CMD [ &amp;#34;npm&amp;#34;, &amp;#34;start&amp;#34; ] 为应用编写Dockerfile是容器化应用的第一步，你可以认为Dockerfile里的命令是构建镜像的一步步指令
+首先从一个已经存在的基础镜像开始，FROM node:8.9.4-alpine，该基础镜像是一个官方的镜像，在开始构建时，如果本地没有该镜像，将会Docker Hub自动拉取该镜像． 然后通过WORKDIR指令设置工作目录，之后的操作都将基于该工作目录． 通过COPY指令，将当前目录下的package.json文件拷贝到容器的当前目录下（/usr/src/app/），也就是/usr/src/app/package.json．　RUN指令是执行相关的命令，示例中在/usr/src/app/目录下执行npm install命令，该命令将根据package.json文件安装应用相关的依赖包． 接着将剩余的代码从主机拷贝到镜像的文件系统中． 最后的CMD命令配置了镜像的元数据，描述使用该镜像运行容器时，如何启动应用程序，这里启动容器时将运行npm start. 以上只是一个简单的Dockerfile示例，更多的指令请参考官方文档.
+构建和测试镜像 现在我们拥有了源代码和Dockerfile，我们可以开始构建应用的镜像了．
+首先确保当前目录是 node-bulletin-board/bulletin-board-app/　，通过如下的命令构建镜像 $ docker image build -t bulletinboard:1.0 . 你将看到Docker按照Dockerfile里的指令进行构建，当构建成功后，可通过如下命令查看到构建出来的镜像
+$ docker image ls bulletinboard 1.</description></item><item><title>DOCKER入门</title><link>/zh/posts/container-tech/docker-intro/</link><pubDate>Thu, 13 Feb 2020 12:40:25 +0800</pubDate><guid>/zh/posts/container-tech/docker-intro/</guid><description>Docker Docker是一个为开发者和运维工程师（系统管理员）以容器的方式构建，分享和运行应用的平台。使用容器进行应用部署的方式，我们成为容器化。
+容器化应用具有一下特性，使得容器化日益流行：
+灵活：　再复杂的应用都可以进行容器化． 轻量：　容器使用使用和共享主机的内核，在系统资源的利用比虚拟机更加高效． 可移植：　容器可以本地构建，部署到云上，运行在任何地方． 松耦合：　容器是高度自封装的，可以在不影响其他容器的情况下替换和升级容器． 可扩展：　可以在整个数据中心里增加和自动分发容器副本． 安全：　容器约束和隔离应用进程，而无需用户进行任何配置． 镜像和容器 其实，容器就是运行的进程，附带一些封装的特性，使其与主机上和其他容器的进程隔离．每个容器都只访问它自己私有的文件系统，这是容器隔离很重要的一方面．而Docker镜像就提供了这个文件系统，一个镜像包含运行该应用所有需求 - 代码或者二进制文件，运行时，依赖库，以及其他需要的文件系统对象．
+通过与虚拟机对比，虚拟机（VM）通过一个虚拟机管理（Hypervisor）运行了完整的操作系统来访问主机资源．通常虚拟机会产生大量的开销，超过了应用本身所需要的开销．
+容器编排 容器化过程的可移植性和可重复性意味着我们有机会跨云和数据中心移动和扩展容器化的应用程序，容器有效地保证应用程序可以在任何地方以相同的方式运行，这使我们可以快速有效地利用所有这些环境．当我们扩展我们的应用，我们需要一些工具来帮助自动维护这些应用，在容器的生命周期里，可以自动替换失败的容器，管理滚动升级，以及重新配置．　容器编排器（Orchestrator）就是管理，扩展和维护容器化应用的工具，当前最常见的例子就是 Kubernetes 和 Docke Swarm ．Docker Desktop 工具可以在开发环境提供这两个编排工具．当前，Docker Desktop 仅支持在Windows和OSX系统上安装，本文接下来主要介绍如何在Linux上安装Docker，以及运行一个容器．
+安装Docker 如果你使用的是Windows或者Mac OS系统，请参考上面的链接安装和使用 Docker Desktop，下面我们将已Ubuntu 18.04系统为例来安装Docker的社区版本（docker-ce）．　配置软件源 更新apt包索引 $ sudo apt update 安装需要的软件包 $ sudo apt install \ apt-transport-https \ ca-certificates \ curl \ gnupg-agent \ software-properties-common 添加Docker官方的GPG信息 $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - 使用如下命令添加Docker的安装源 $ sudo add-apt-repository \ &amp;#34;deb [arch=amd64] https://download.</description></item><item><title>在UBUNTU上删除旧的内核</title><link>/zh/posts/linux/ubuntu-old-kernel/</link><pubDate>Sun, 08 Dec 2019 23:42:22 +0800</pubDate><guid>/zh/posts/linux/ubuntu-old-kernel/</guid><description>在使用Ubuntu Linux系统时，经常发现在升级Linux内核之后，旧版本的内核包依旧保留在系统中，占据了一定的磁盘空间。系统并不会自动删除掉旧版本的内核，是因为保证在使用新内核无法启动时，还可以选择使用旧版本的内核来启动系统。因此在使用新版本内核启动成功之后，我们需要手动来删除掉一些旧版本的内核包，以释放一定的磁盘空间。那我们如何安全的删除旧版本的内核呢？
+删除旧的内核映像 以下是在Ubunut上安全删除旧的Linux内核映像步骤，你不必须以root用户执行命令，或者使用sudo．　步骤一　- 启动到新的内核　首先启动到新安装的内核版本，可以使用如下的命令来验证当前内核版本：
+&amp;gt; uname -mrs &amp;gt; uname -a 输出样例如下：
+Linux 4.4.0-117-generic x86_64
+使用以下命令显示当前系统中已经安装的所有Linux内核映像：
+# dpkg --list | egrep -i --color &amp;#39;linux-image|linux-headers&amp;#39; 输出可能如下：
+ii linux-headers-4.15.0-45 4.15.0-45.48 all Header files related to Linux kernel version 4.15.0 ii linux-headers-4.15.0-45-generic 4.15.0-45.48 amd64 Linux kernel headers for version 4.15.0 on 64 bit x86 SMP ii linux-headers-generic 4.15.0.45.47 amd64 Generic Linux kernel headers ii linux-image-4.15.0-45-generic 4.15.0-45.48 amd64 Signed kernel image generic ii linux-image-generic 4.</description></item><item><title>RCLOUD与云存储同步</title><link>/zh/posts/opentool/rclone-sync/</link><pubDate>Fri, 30 Aug 2019 12:19:04 +0800</pubDate><guid>/zh/posts/opentool/rclone-sync/</guid><description>Rclone是一个命令行云存储同步工具，可以在文件系统和云存储服务之间或者多个云存储服务之间访问和同步文件，支持很多云存储服务后端。
+Rclone支持的云存储服务 rclone的当前版本为v1.49.1，支持以下云存储服务：
+1Fichier Alibaba Cloud (Aliyun) Object Storage System (OSS) Amazon Drive (See note) Amazon S3 Backblaze B2 Box Ceph C14 DigitalOcean Spaces Dreamhost Dropbox FTP Google Cloud Storage Google Drive Google Photos HTTP Hubic Jottacloud IBM COS S3 Koofr Memset Memstore Mega Microsoft Azure Blob Storage Microsoft OneDrive Minio Nextcloud OVH OpenDrive Openstack Swift Oracle Cloud Storage ownCloud pCloud premiumize.me put.io QingStor Rackspace Cloud Files rsync.net Scaleway SFTP Wasabi WebDAV Yandex Disk The local filesystem 当前对于Google Photos的支持有一定的限制，具体请看文档。</description></item><item><title>LINUX上创建不可删除文件</title><link>/zh/posts/linux/make-undeletable/</link><pubDate>Sat, 24 Aug 2019 15:00:04 +0800</pubDate><guid>/zh/posts/linux/make-undeletable/</guid><description>我们都知道在Linux上默认都会有一个名为root的超级用户，该用户可以修改系统上的任何文件和目录，那我们怎么创建一些不能被删除/修改的文件和目录呢？
+那在Linux系统中有一个命令chattr可以用来修改文件和目录的属性，通过该命令就可以设置文件和目录不可删除，甚至包括root也不能操作。
+创建不可删除的文件 例如，我们在系统上新建一个名为undeletable-file的文件，通过名了chattr设置其属性为不可修改的：
+❯ echo &amp;#34;some contents&amp;#34; ❯ ~/undeletable-file ❯ sudo chattr +i -V ~/undeletable-file chattr 1.43.8 (1-Jan-2018) Flags of /home/mengz/undeletable-file set as ----i-------------- ❯ rm -f ~/undeletable-file rm: cannot remove &amp;#39;undeletable-file&amp;#39;: Operation not permitted ❯ sudo rm -f ~/undeletable-file rm: cannot remove &amp;#39;undeletable-file&amp;#39;: Operation not permitted ❯ echo &amp;#34;change&amp;#34; ❯❯ ~/undeletable-file bash: undeletable-file: Operation not permitted 注意 ： 是用命令chattr修改属性的时候需要root权限，因此这里使用了sudo 。
+我们也可以通过命令lsattr来查看当前文件的属性：
+❯ lsattr ~/undeletable-file ----i-------------- /home/mengz/undeletable-file 设置目录不可修改 针对目录，同样是用命令chattr，是用-R选项可以递归地修改目录和其文件的属性：</description></item><item><title>BUMBLEBEE禁用NVIDIA显卡</title><link>/zh/posts/linux/bumlebee-nvidia/</link><pubDate>Wed, 25 Nov 2015 01:13:00 +0800</pubDate><guid>/zh/posts/linux/bumlebee-nvidia/</guid><description>如今有很多笔记本电脑都配备了双显卡，一块集成的 Intel 显卡，一块性能更好一些的 NVIDIA 显卡。
+可是在平时的使用中可能根本用不上 NVIDIA 的那块显卡，那么为了使这样的笔记本电脑更省电，那么在平时的使用中可以禁用 NVIDIA 的显卡，而只使用集成的显卡。 Bumblebee 就是一个开源项目，在 Linux 上实现了 NVIDIA 的 Optimus 技术，在需要的时候使用 NVIDIA 的显卡。
+我的电脑是 Lenovo ThinkPad T440s ，配备了如下的两块显卡：
+1. 00:02.0 VGA compatible controller: Intel Corporation Haswell-ULT Integrated Graphics Controller (rev 09) 2. VGA compatible controller: NVIDIA Corporation GK208M [GeForce GT 730M] (rev ff) 而我使用的系统是 openSUSE Leap 42.1，下面就看看如何在该系统上禁用 NVIDIA 的显卡。
+安装所需的软件包 首先添加如下安装源：
+sudo zypper ar -r http://download.opensuse.org/repositories/X11:/Bumblebee/openSUSE_Leap_42.1/X11:Bumblebee.repo
+刷新后，安装如下软件包：
+bumblebee nvidia-bumblebee bbswitch bbswitch-kmp-default
+如果你是64位系统，还请安装
+nvidia-bumblebee-32bit</description></item><item><title>DOCKER构建MariaDB</title><link>/zh/posts/container-tech/mariadb-docker/</link><pubDate>Wed, 27 May 2015 23:09:00 +0800</pubDate><guid>/zh/posts/container-tech/mariadb-docker/</guid><description>现在 Docker 可所谓是最火的容器技术了，至于什么是 Docker，请到其官方网站或者维基百科查看。
+这里想通过一个示例来看看怎么通过 Dockerfile 来构建一个 Docker 镜像。
+构建MariaDB容器镜像 Docker 提供了两种方法来生产应用镜像:
+通过启动一个基础容器（比如基于某种 Linux 发行版的镜像的容器），然后在容器里执行各种命令来安装相应的软件包，进行配置后，再通过 docker commit 命令把已经更新的容器生产相应的镜像。 通过编写一个 Dockerfile ，然后使用 docker build 命令来构建相应的镜像。 相比第一种方式，通过 Dockerfile 的方式，可以更好的维护镜像，将镜像的 Dockerfile 提交到版本库管理。还可以在 Docker Hub 里创建镜像的自动构建。
+下面让我们通过如何编写 Dockerfile 来构建一个 mariadb 的镜像：
+首先创建一个目录，如 docker-mariadb ，然后编写一个名为 Dockerfile 的文件，内容如下：
+FROM opensuse:13.2 MAINTAINER Mengz You &amp;lt;you.mengz@yahoo.com&amp;gt; ENV MARIADB_MAJOR 10.0 ENV MARIADB_VERSION 10.0.17 ENV MYSQL_ROOT_PASSWORD mysecretpassword ENV MYSQL_DATADIR /var/lib/mysql RUN zypper ar -f -r http://download.opensuse.org/repositories/server:/database/openSUSE_13.2/server:database.repo \ &amp;amp;&amp;amp; zypper -n --gpg-auto-import-keys ref RUN zypper -n in --no-recommends mariadb-$MARIADB_VERSION net-tools \ &amp;amp;&amp;amp; zypper clean --all RUN mkdir -p /var/lib/mysql \ &amp;amp;&amp;amp; mkdir -p /var/log/mysql \ &amp;amp;&amp;amp; chown mysql:mysql /var/log/mysql VOLUME /var/lib/mysql COPY docker-entrypoint.</description></item><item><title>HOSTNAMECTL管理主机名</title><link>/zh/posts/linux/systemd-hostnamectl/</link><pubDate>Sun, 17 May 2015 13:35:00 +0800</pubDate><guid>/zh/posts/linux/systemd-hostnamectl/</guid><description>基于 systemd 的 Linux 系统中提供了一个新的名来 hostnamectl 来管理系统主机名。
+当然除了 hostnamectl 之外，还是可以通过原来的 hostname 命令以及修改 /etc/HOSTNAME 来修改主机名。不过使用 hostnamectl 更方便。
+hostnamectl的语法 hostnamectl [OPTIONS...] {COMMAND}
+有如下 options :
+&amp;ndash;static,&amp;ndash;transient,&amp;ndash;pretty 如果用于 status 命令，static 显示当前的静态主机名; transient 显示临时的主机名，一般用于网络临时设置; pretty 显示良好阅读主机名，如&amp;quot;Sam&amp;rsquo;s Computer&amp;quot;。 H, &amp;ndash;host=user@hostname 用来操作远程主机。 命令：
+status ： 显示当前系统主机名和相关信息，可以使用 &amp;ndash;static, &amp;ndash;transient, &amp;ndash;pretty 仅显示指定内容。 set-hostname [NAME] ： 设置系统主机名，默认改变 pretty，static，及 transient 。 指定相应选项只改变相应主机名。 set-icon-name [NAME] ： 设置系统 Icon 名，用于一些图形应用来可视化主机。Icon 名需要符合 Icon 名规范。 set-chassis [TYPE] ： 设置 chassis 类型，用于一些图形应用来可视化主机或者改变用户界面。当前设置以下类型：&amp;ldquo;desktop&amp;rdquo;，&amp;ldquo;laptop&amp;rdquo;，&amp;ldquo;server&amp;rdquo;，&amp;ldquo;tablet&amp;rdquo;，&amp;ldquo;handset&amp;rdquo;，还有 &amp;ldquo;vm&amp;rdquo; 和 &amp;ldquo;container&amp;rdquo;。 示例 查看当前主机名及相关信息： $sudo hostnamectl status</description></item><item><title>OPENSUSE上的ZYPPER包管理器</title><link>/zh/posts/linux/opensuse-zypper/</link><pubDate>Mon, 27 Apr 2015 08:07:00 +0800</pubDate><guid>/zh/posts/linux/opensuse-zypper/</guid><description>自己在使用 opensuse，自己非常喜欢 opensuse 的包管理命令行工具 zypper。这里做一个笔记，也希望能看到这个篇文章的朋友能够快速地掌握 zypper 的用法。
+CentOS 和 Redhat 使用的是 yum 作为命令行的软件包管理工具。
+Debian 和 Ubuntu 使用的是 apt-get。
+在 Debian/Ubuntu 上还有另一个软件包管理工具 - aptitude 。
+同样，在 SUSE/opensuse Linux 上，zypper 就是其命令行的软件包管理工具。
+从高层次的角度，你可以使用 zypper 命令管理两种不同的东西：
+管理软件包： 使用 zypper 来安装，删除，更新以及查询本地的或者远端媒体上的软件包。 管理软件源： 也可以使用 zypper 管理软件源信息，你可以在命令行添加，删除，打开或者关闭某个软件源。它还可以设置在安装过程中软件源的优先级。 I. 使用 zypper 管理软件包 1. 安装软件包 使用如下语法安装一个软件包：
+zypper install &amp;lt;package name&amp;gt;
+如，执行一下命令来安装 火狐浏览器 和它的依赖：
+# zypper install MozillaFirefox Loading repository data... Reading installed packages... Resolving package dependencies... The following NEW packages are going to be installed: MozillaFirefox MozillaFirefox-branding-SLED The following packages are not supported by their vendor: MozillaFirefox MozillaFirefox-branding-SLED 2 new packages to install.</description></item><item><title>SYSTEMCTL管理系统服务</title><link>/zh/posts/linux/systemd-systemctl/</link><pubDate>Thu, 29 Jan 2015 18:46:00 +0800</pubDate><guid>/zh/posts/linux/systemd-systemctl/</guid><description>这是我在使用openSuSE过程中学习和使用systemd来管理系统的一些笔记。 首先那就让我们来先看看什么是systemd：
+Systemd Systemd是Linux下的一个程序，用来初始化系统。像SysV一样，其将会被Linux内核启动。 在opneSuSE上，systemd将会是系统进程号为1的进程，其负责初始化系统和启动系统服务。
+openSuSE从12.3版本开始，用systemd作为默认的系统初始化程序代替了SysV。 想了解systemd和SysV的对于，可以参看这里。
+用sytemctl进行系统管理 systemd提供了systemctl命令来进行系统服务管理，其调用格式如下：
+systemctl [通用选项] 子命令 [子命令选项]
+在系统上管理服务 像SysV一样，通过子命令start|stop|restart等来管理服务：
+systemctl start|stop|status|restart|reload|&amp;hellip; &amp;lt;服务名&amp;gt;.service
+如查看当前cron服务的状态：
+# systemctl status cron.service cron.service - Command Scheduler Loaded: loaded (/usr/lib/systemd/system/cron.service; enabled) Active: active (running) since Mon 2015-01-26 15:50:21 CST; 3 days ago Main PID: 1247 (cron) CGroup: /system.slice/cron.service └─1247 /usr/sbin/cron -n
+systemctl支持一次操作多个服务，只要在子命令后添加多个服务名即可。
+使用enable|disable来设置开启自动启动或者不启动一个服务：
+systemctl enable|disable &amp;lt;服务名&amp;gt;.service
+Systemd的启动目标 在SysV的启动系统上，用启动级别（runlevel）来表示系统的启动状态，已经哪些服务伴随这级别一起启动。 如 0 （关闭系统），3 （多用户带网络），5 （多用户带网络，显示图形用户界面）。
+而在Systemd上，用目标（target）表示这个概念，如 graphical.target 提供了多用户带网，显示图像用户界面的启动目标，就相当与level 5。 systemd提供了很多内置的目标单元，可以用下面的命令查看：
+# systemctl list-unit-files &amp;ndash;type=target</description></item><item><title>调试Shell脚本错误</title><link>/zh/posts/programming/shell-debug/</link><pubDate>Sun, 13 Feb 2011 15:03:32 +0800</pubDate><guid>/zh/posts/programming/shell-debug/</guid><description>今天在写一个 shell 脚本的时候遇到了如下的错误：
+line 225: unexpected EOF while looking for matching `”‘
+line 233: syntax error: unexpected end of file
+可是认真查看它提示出错的行时，却发现(&amp;quot;)号是配对的。
+225行是如下的代码:
+if [ ${options} = &amp;#34;ALL&amp;#34; ]; then 很明显报错的行数不对，由于前面的代码比较多，一行行看也不容易看错错误。 既然说文件结尾有问题，于是我在文件尾加上一个(&amp;quot;)符号，再运行。现在提示给出了正确的错误行号。
+原来是前面有这样的代码:
+echo &amp;#34;${PACKAGENAME&amp;#34; &amp;gt;&amp;gt; ${file} 是变量的引用时少了相应的 (}) 号。
+所以，如果以后遇到类似的问题，可以尝试加一些符号来调试，也许会有帮助。</description></item><item><title>OPENSUSE上的定时任务</title><link>/zh/posts/linux/opensuse-cronjob/</link><pubDate>Wed, 02 Feb 2011 15:03:32 +0800</pubDate><guid>/zh/posts/linux/opensuse-cronjob/</guid><description>前段时间，发现每次开机后一段时间机器就会很慢，似乎在跑些什么任务，于是查看系统任务，发现有updatadb（为locate构建数据索引）在运行。这些任务是由 cron 触发的。
+于是我用crontab命令来查看当前的cron任务列表，可是得到如下返回：
+$sudo crontab -u root -l
+root’s password:
+no crontab for root
+可是我发现在*/etc/cron.daily/目录下有一些脚本， 其中就有一个suse-updatedb*。那些进程就是由这个脚本启动的。 接下来，我查看了一下*/etc/crontab*文件:
+-*/15 * * * * root test -x /usr/lib/cron/run-crons &amp;amp;&amp;amp; /usr/lib/cron/run-crons &amp;gt;/dev/null 2&amp;gt;&amp;amp;1
+这说明系统会每15分钟调用一次 /usr/lib/cron/run-crons 脚本，接着查看了一下那个脚本，其中发现了一行注释：
+# if DAILY_TIME set, run only at a fixed time of day
+而DAILY_TIME这个变量应该在*/etc/sysconfig/cron*配置文件里指定，在文件中有这么一段：
+## Type: string
+## Default: “”
+#
+# At which time cron.daily should start. Default is 15 minutes after booting
+# the system. Example setting would be “14:00″.</description></item><item><title>查看硬件信息</title><link>/zh/posts/linux/what-hardware/</link><pubDate>Fri, 19 Nov 2010 21:33:20 +0800</pubDate><guid>/zh/posts/linux/what-hardware/</guid><description>通常，你也许不需要知道你使用了什么样的硬件 — 你也许拥有的是一台来自比较小一点公司的组装机或者一台二手机。本月，我将介绍你可以用来查看你安装的硬件的工具。 第一步，使用lshw — 列举硬件工具。如果你使用普通用户执行，它会警告你需要使用root执行。因此，以sudo lshw执行。你将可以看到屏幕上显示你系统的信息。第一段将是常规信息，看起来就像下面这样：
+jbernard-eeepc
+description: Notebook
+product: 700
+vendor: ASUSTeK Computer INC.
+version: 0129
+serial: EeePC-1234567890
+width: 32 bits
+capabilities: smbios-2.5 dmi-2.5 smp-1.4 smp
+configuration: boot=normal chassis=notebook
+cpus=1 uuid=XXXXXX-XXXXX-XXXXX-XXXXX
+这是我在我的ASUS EeePC执行的结果。你可以看到生产商是ASUSTeK, BIOS的版本是0129， 以及这是一台32位的单一CPU机器。更多的信息以下面的分类来说明：
+core
+firmware - motherboard and BIOS information
+cpu - CPU information
+cache - cache information
+memory - memory information
+bank - specific bank memory information
+pci - PCI bus information
+display - PCI display adapter</description></item><item><title>改良鸡尾酒排序算法</title><link>/zh/posts/programming/cocktail-improve/</link><pubDate>Wed, 27 Oct 2010 15:03:32 +0800</pubDate><guid>/zh/posts/programming/cocktail-improve/</guid><description>记得以前学习数据结构和算法时就了解了冒泡排序算法， 前几天的一个面试也被问到了这个问题。于是回来后就又温习了一遍，还了解到了一种冒泡的改良算法，叫做鸡尾酒(cocktail)排序算法，其实现是通过两个循环分别从两端进行冒泡。
+通常实现 template&amp;lt; typename T &amp;gt; void cocktail_sort(T array[], int n) { int bottom = 0; int top = n – 1; bool swapped = true; while (swapped) { swapped = false; for ( int i = bottom; i &amp;lt; top; i++ ) { if ( array[i] &amp;gt; array[i+1] ) { swap(array[i], array[i+1]); swapped = true; } } top–; // top is a larger one for ( int i = top; i &amp;gt; bottom; i– ) { if ( array[i] &amp;lt; array[i-1] ) { swap(array[i], array[i-1]); swapped = true; } } bottom++; // bottom is a smaller one } } // end, cocktail_sort 改良实现 我在网上搜索的实现基本上都是上面的实现方法。 我就想为什么不在一个循环中两端一起进行冒泡呢？于是我实现了下面这样的改良的cocktail算法实现，暂且取名为bi_bubble_sort，减少了循环比较的次数：</description></item><item><title>GITLAB CI自动部署容器应用</title><link>/zh/posts/devops/gitlab-ci-docker/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>/zh/posts/devops/gitlab-ci-docker/</guid><description>容器 Docker 越来越受开发者和运维人员的喜爱，更是作为实践 DevOps 的一个中要工具。同时 Gitlab 提供了免费的代码管理服务，其 gitlab-ci 更是提供了强大的自动化 CI/CD 流程功能。
+本文以一个静态站点的示例来说明如何使用 gitlab-ci 和 docker 进行容器镜像的构建，以及如何将镜像自动化部署到目标服务器上。
+编写Dockerfile 首先在代码库中增加 Dockerfile ，用于描述如何构建应用的容器镜像。以下是一个基于 Hugo 的静态站点应用的示例：
+FROM mengzyou/hugo:latest as builder COPY . /app/ RUN hugo FROM nginx:1.16-alpine RUN set -x \ &amp;amp;&amp;amp; rm -f /etc/nginx/conf.d/default.conf \ &amp;amp;&amp;amp; mkdir -p /usr/share/nginx/html COPY --from=builder /app/nginx-default.conf /etc/nginx/conf.d/default.conf COPY --from=builder /app/public/ /usr/share/nginx/html 其实非常简单，使用了多阶段构建，以 mengzyou/hugo 作为构建镜像，然后将生成的静态文件拷贝到 nginx 镜像中，最终生成静态站点的镜像。
+配置Gitlab-ci构建容器镜像 该阶段，在项目根目录添加 .gitlab-ci.yml 文件，示例内容如下：
+variables: DOCKER_DRIVER: overlay2 CI_REGISTRY_IMAGE: ${CI_REGISTRY}/mengzyou/app before_script: - echo $CI_JOB_NAME - echo $CI_PROJECT_DIR stages: - build build:docker: stage: build variables: DOCKER_HOST: tcp://docker:2375 image: docker:stable services: - docker:dind script: - echo &amp;#34;Building image - $CI_REGISTRY_IMAGE:latest&amp;#34; - echo &amp;#34;$CI_REGISTRY_PASSWORD&amp;#34; | docker login -u &amp;#34;$CI_REGISTRY_USER&amp;#34; --password-stdin $CI_REGISTRY - docker image build --force-rm --no-cache -t $CI_REGISTRY_IMAGE:latest .</description></item></channel></rss>

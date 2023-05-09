@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>compose on Mengz's Space ...</title><link>/zh/tags/compose/</link><description>Recent content in compose on Mengz's Space ...</description><generator>Hugo -- gohugo.io</generator><language>en_US</language><lastBuildDate>Thu, 02 Jun 2022 18:53:16 +0800</lastBuildDate><atom:link href="/zh/tags/compose/index.xml" rel="self" type="application/rss+xml"/><item><title>开始使用DOCKER COMPOSE V2</title><link>/zh/posts/container-tech/docker-compose-v2/</link><pubDate>Thu, 02 Jun 2022 18:53:16 +0800</pubDate><guid>/zh/posts/container-tech/docker-compose-v2/</guid><description>Compose V2 项目启动于2021年6月，直到2022年4月26号，发布了GA版本。在发布GA版本后，社区也宣布对于Compose V1将不会再进行功能更新，将在6个月后结束生命周期（EOL），期间会进行关键的安全和错误修复。
+V1与V2的兼容对比 确保 V1 和 V2 之间的兼容性对于日常工作流程至关重要，下面是V2中两个关键的更改
+更改 潜在影响 迁移 V2原生支持BuildKit，并且默认开启 开发者在V2中将默认使用BuildKit进行镜像构建 可通过设置环境变量不使用 DOCKER_BUILDKIT=0 容器名字中使用 - 替代了 _ 作为分隔符 如果在脚本中使用了容器名字，这可能会导致错误 可以通过 &amp;ldquo;&amp;ndash;compatibility&amp;rdquo; 标记来关闭此更改 关于更多的兼容性更改，请查看兼容性文档
+如何安装Compose V2 Windows，MacOS和Linux上使用Docker Desktop，就自带了Compose V2，可通过命令 docker compose 执行。也可以通过配置“Use Docker Compose V2“来设置 docker-compose 别名到 docker compose。
+如果没有使用Docker Desktop for Linux，而是直接使用的Docker Engine，则需要额外安装 docker-compose-plugin 或者独立的二进制包。
+例如对于Ubuntu,可以通过Docker官方的APT源直接安装
+❯ sudo apt update ❯ sudo apt install docker-compose-plugin 其他Linux, 例如在我的 openSUSE 上，通过手动从Github下载二进制文件进行安装（注意选择版本和平台架构）
+❯ DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker} ❯ mkdir -p $DOCKER_CONFIG/cli-plugins ❯ wget https://github.</description></item></channel></rss>

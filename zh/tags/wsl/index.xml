@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>wsl on Mengz's Space ...</title><link>/zh/tags/wsl/</link><description>Recent content in wsl on Mengz's Space ...</description><generator>Hugo -- gohugo.io</generator><language>en_US</language><lastBuildDate>Tue, 08 Jun 2021 16:42:22 +0800</lastBuildDate><atom:link href="/zh/tags/wsl/index.xml" rel="self" type="application/rss+xml"/><item><title>Windows10上安装WSL2</title><link>/zh/posts/windows/windows10-wsl2/</link><pubDate>Tue, 08 Jun 2021 16:42:22 +0800</pubDate><guid>/zh/posts/windows/windows10-wsl2/</guid><description>现在Windows （10）是越來越向Linux靠近了，对于开发者开说，特别是在Windows上的Linux子系统非常好用。
+WSL2（Windows Subsystem for Linux ）是Windows 10上的一个工具，允许开发人员在Windows上直接运行Linux环境，使得在Windows系统上进行Linux的原生体验。
+对于WSL2，其底层通过微软的内置虚拟化技术（Hyper-V）实现Linux的环境。本文将一步步知道如何在Windows 10上启用WSL2，并安装一个Ubuntu 20.04分发版本的Linux。
+前提条件 想要在Windows 10上启用WLS2，需要满足以下条件：
+Windows 10 版本 1903 Build 19362，或高于该版本 如果是ARM64的系统，则需要版本2004 Build 19041，或高于该版本 步骤一　- 为WSL启用Windows服务 想要在Windows 10上运行WSL，首先需要启用Windows上的一些服务，这些服务默认是关闭的。
+开始菜单，搜索 PowerShell，右键 PowerShell，选择使用管理员运行。
+在打开的 PowerShell 终端，执行如下命令：
+PS C:\Windows\system32&amp;gt; dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart [dism.exe]是Windows的部署映像服务和管理工具，上面的命令开启了WSL的功能。
+以上命令执行成功之后，继续执行如下命令来开启Hyper-V的功能
+PS C:\Windows\system32&amp;gt; dism.exe /online /enable-feature /featurename:VirutalMachinePlatform /all /norestart 完成以上操作之后，需要重启Windows操作系统，重启之后再次登陆系统。
+接下来需要从微软下载一个最新的Linux内核升级包并安装，下载安装包 wsl_update_x64.msi，下载完成后直接安装。
+完成之后，以管理员身份运行 PowerShell，执行如下命令来设置wsl使用的默认版本
+PS C:\Windows\system32&amp;gt; wsl --set-default-version 2 这里我们将默认设置为 wsl 2 。
+上述步骤就完成了WSL2的启用，接下来将使用WSL2安装基于Linux的发行版本（Ubuntu 20.04）。
+步骤二　- 使用WSL安装Ubuntu 20.</description></item></channel></rss>

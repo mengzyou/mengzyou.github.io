@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>shell on Mengz's Space ...</title><link>/zh/tags/shell/</link><description>Recent content in shell on Mengz's Space ...</description><generator>Hugo -- gohugo.io</generator><language>en_US</language><lastBuildDate>Sun, 13 Feb 2011 15:03:32 +0800</lastBuildDate><atom:link href="/zh/tags/shell/index.xml" rel="self" type="application/rss+xml"/><item><title>调试Shell脚本错误</title><link>/zh/posts/programming/shell-debug/</link><pubDate>Sun, 13 Feb 2011 15:03:32 +0800</pubDate><guid>/zh/posts/programming/shell-debug/</guid><description>今天在写一个 shell 脚本的时候遇到了如下的错误：
+line 225: unexpected EOF while looking for matching `”‘
+line 233: syntax error: unexpected end of file
+可是认真查看它提示出错的行时，却发现(&amp;quot;)号是配对的。
+225行是如下的代码:
+if [ ${options} = &amp;#34;ALL&amp;#34; ]; then 很明显报错的行数不对，由于前面的代码比较多，一行行看也不容易看错错误。 既然说文件结尾有问题，于是我在文件尾加上一个(&amp;quot;)符号，再运行。现在提示给出了正确的错误行号。
+原来是前面有这样的代码:
+echo &amp;#34;${PACKAGENAME&amp;#34; &amp;gt;&amp;gt; ${file} 是变量的引用时少了相应的 (}) 号。
+所以，如果以后遇到类似的问题，可以尝试加一些符号来调试，也许会有帮助。</description></item></channel></rss>

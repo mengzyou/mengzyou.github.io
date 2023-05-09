@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>wireguard on Mengz's Space ...</title><link>/zh/tags/wireguard/</link><description>Recent content in wireguard on Mengz's Space ...</description><generator>Hugo -- gohugo.io</generator><language>en_US</language><lastBuildDate>Thu, 03 Dec 2020 11:56:29 +0800</lastBuildDate><atom:link href="/zh/tags/wireguard/index.xml" rel="self" type="application/rss+xml"/><item><title>在LINUX上配置WIREGUARD</title><link>/zh/posts/linux/wireguard-vpn/</link><pubDate>Thu, 03 Dec 2020 11:56:29 +0800</pubDate><guid>/zh/posts/linux/wireguard-vpn/</guid><description>什么是 WireGuard ？ 其官方宣称是快速、现代以及安全的VPN隧道（Fast, Modern, Secure VPN Tunnel）。
+WireGuard使用了最先进的加密技术，相比 IPSec 更简单更精简，而且拥有几乎超越 OpenVPN 的性能。其最初是针对Linux内核发布的，但是现在已经跨平台（Windows, MacOS, BSD, Android, iOS等）可部署。
+接下来这篇How To系列文章，就来一步步在Ubuntu (Linux)上安装和配置WireGuard VPN，其中一台云主机运行Ubuntu-20.04用作VPN服务器，另一台本地的linux桌面环境作为VPN客户端。
+服务器端安装WireGuard 这里我们的服务器使用的是操作系统为Ubuntu 20.04的云主机，对于如何创建并配置一台云主机，可以选择 [DigitalOcean]（https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-20-04）。
+这里我们我们已经配置好一台Ubuntu 20.04的云主机，并且可以通过SSH访问。首先对系统进行安全更新
+$ sudo apt update $ sudo apt upgrade 接下来直接使用APT安装WireGuard软件包
+$ sudo apt install wireguard 会同时安装 wireguard-tools 软件包，我们需要使用其工具进行相关的配置。
+配置WireGuard服务端 进入root权限进行操作，为服务端生产私有/公共密钥对
+$ sudo -i \# cd /etc/wireguard/ \# umask 077 \# wg genkey | tee privatekey | wg pubkey &amp;gt; publickey 执行完上述命令后，我们会在目录 /etc/wireguard/ 下生产两个密钥文件 privatekey 和 publickey 。</description></item></channel></rss>

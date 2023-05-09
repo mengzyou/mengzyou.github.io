@@ -1,0 +1,241 @@
+<!doctype html><html lang=zh><head><title>IaC示例-TERRAFORM&amp;ANSIBLE创建K3S集群</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="ie=edge"><link rel=stylesheet href=/application.fb9df7e952c9dccf496d00faec07de633aae460f909bbba4b5e0ad22f5887d73.css integrity="sha256-+5336VLJ3M9JbQD67AfeYzquRg+Qm7ukteCtIvWIfXM="><link rel=icon type=image/png href=/images/site/favicon_hu3d2f89ed4395f8e4a11f46415bebb510_10034_42x0_resize_box_3.png><meta property="og:title" content="IaC示例-TERRAFORM&amp;ANSIBLE创建K3S集群"><meta property="og:description" content="通过 Pacer，Terraform 和 Ansible 在本地环境自动化创 K3S 集群演示"><meta property="og:type" content="article"><meta property="og:url" content="/zh/posts/devops/k3s-terraform-ansible/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-10-13T12:18:27+08:00"><meta property="article:modified_time" content="2022-10-13T12:18:27+08:00"><meta name=description content="通过 Pacer，Terraform 和 Ansible 在本地环境自动化创 K3S 集群演示"><script src=https://cdn.counter.dev/script.js data-id=2905461c-37df-49f9-a4ca-0ea1ba64543a data-utcoffset=1></script></head><body class="type-posts kind-page" data-spy=scroll data-target=#TableOfContents data-offset=80><div class="container-fluid bg-dimmed wrapper"><nav class="navbar navbar-expand-xl top-navbar final-navbar shadow"><div class=container><button class="navbar-toggler navbar-light" id=sidebar-toggler type=button>
+<span class=navbar-toggler-icon></span></button>
+<a class=navbar-brand href=/zh/><img src=/images/site/main-logo_hu69a4da50b288ac7c5f97b1e1012a418e_8650_42x0_resize_box_3.png alt=Logo>
+Mengz's Space ...</a>
+<button class="navbar-toggler navbar-light" id=toc-toggler type=button>
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse lang-selector" id=top-nav-items><ul class="navbar-nav ml-auto"><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href=# id=themeSelector role=button data-toggle=dropdown aria-haspopup=true aria-expanded=false><img id=navbar-theme-icon-svg src=/icons/moon-svgrepo-com.svg width=20 alt="Dark Theme"></a><div id=themeMenu class="dropdown-menu dropdown-menu-icons-only" aria-labelledby=themeSelector><a class="dropdown-item nav-link" href=# data-scheme=light><img class=menu-icon-center src=/icons/sun-svgrepo-com.svg width=20 alt="Light Theme"></a>
+<a class="dropdown-item nav-link" href=# data-scheme=dark><img class=menu-icon-center src=/icons/moon-svgrepo-com.svg width=20 alt="Dark Theme"></a>
+<a class="dropdown-item nav-link" href=# data-scheme=system><img class=menu-icon-center src=/icons/computer-svgrepo-com.svg width=20 alt="System Theme"></a></div></li></ul></div></div><img src=/images/site/main-logo_hu69a4da50b288ac7c5f97b1e1012a418e_8650_42x0_resize_box_3.png class=d-none id=main-logo alt=Logo>
+<img src=/images/site/inverted-logo_hu3d2f89ed4395f8e4a11f46415bebb510_10034_42x0_resize_box_3.png class=d-none id=inverted-logo alt="Inverted Logo"></nav><section class=sidebar-section id=sidebar-section><div class=sidebar-holder><div class=sidebar id=sidebar><form class=mx-auto method=get action=/zh/search><input type=text name=keyword placeholder=Search data-search id=search-box></form><div class=sidebar-tree><ul class=tree id=tree><li id=list-heading><a href=/zh/posts/ data-filter=all>Posts</a></li><div class=subtree><li><i class="fas fa-plus-circle"></i><a href=/zh/posts/k8s/>Kubernetes</a><ul><li><a href=/zh/posts/k8s/health-checks/ title=K8S健康检查最佳实践>K8S健康检查最佳实践</a></li><li><a href=/zh/posts/k8s/kubectl-plugins/ title=扩展你的KUBECTL功能>扩展你的KUBECTL功能</a></li><li><a href=/zh/posts/k8s/lightweight-k3s/ title=轻量级Kubernetes集群-K3S>轻量级Kubernetes集群-K3S</a></li></ul></li><li><i class="fas fa-plus-circle"></i><a href=/zh/posts/linux/>LINUX</a><ul><li><a href=/zh/posts/linux/bumlebee-nvidia/ title=BUMBLEBEE禁用NVIDIA显卡>BUMBLEBEE禁用NVIDIA显卡</a></li><li><a href=/zh/posts/linux/systemd-hostnamectl/ title=HOSTNAMECTL管理主机名>HOSTNAMECTL管理主机名</a></li><li><a href=/zh/posts/linux/make-undeletable/ title=LINUX上创建不可删除文件>LINUX上创建不可删除文件</a></li><li><a href=/zh/posts/linux/network-packets/ title=LINUX上统计网络接口数据包>LINUX上统计网络接口数据包</a></li><li><a href=/zh/posts/linux/opensuse-zypper/ title=OPENSUSE上的ZYPPER包管理器>OPENSUSE上的ZYPPER包管理器</a></li><li><a href=/zh/posts/linux/opensuse-cronjob/ title=OPENSUSE上的定时任务>OPENSUSE上的定时任务</a></li><li><a href=/zh/posts/linux/systemd-systemctl/ title=SYSTEMCTL管理系统服务>SYSTEMCTL管理系统服务</a></li><li><a href=/zh/posts/linux/systemd-timer/ title=SYSTEMD定时服务>SYSTEMD定时服务</a></li><li><a href=/zh/posts/linux/opensuse-upgrade/ title="升级OPENSUSE LEAP">升级OPENSUSE LEAP</a></li><li><a href=/zh/posts/linux/wireguard-vpn/ title=在LINUX上配置WIREGUARD>在LINUX上配置WIREGUARD</a></li><li><a href=/zh/posts/linux/ubuntu-old-kernel/ title=在UBUNTU上删除旧的内核>在UBUNTU上删除旧的内核</a></li><li><a href=/zh/posts/linux/what-hardware/ title=查看硬件信息>查看硬件信息</a></li></ul></li><li><i class="fas fa-plus-circle"></i><a href=/zh/posts/windows/>Windows</a><ul><li><a href=/zh/posts/windows/windows10-wsl2/ title=Windows10上安装WSL2>Windows10上安装WSL2</a></li><li><a href=/zh/posts/windows/windows10-virtio-image/ title=加载virtio驱动的Windows10安装镜像>加载virtio驱动的Windows10安装镜像</a></li></ul></li><li><i class="fas fa-plus-circle"></i><a href=/zh/posts/container-tech/>容器技术</a><ul><li><a href=/zh/posts/container-tech/docker-live-restore/ title="DOCKER LIVERESTORE特性">DOCKER LIVERESTORE特性</a></li><li><a href=/zh/posts/container-tech/docker-sbom/ title="DOCKER SBOM镜像物料清单">DOCKER SBOM镜像物料清单</a></li><li><a href=/zh/posts/container-tech/dockerfile-best/ title=DOCKERFILE构建最佳实践>DOCKERFILE构建最佳实践</a></li><li><a href=/zh/posts/container-tech/docker-intro/ title=DOCKER入门>DOCKER入门</a></li><li><a href=/zh/posts/container-tech/mariadb-docker/ title=DOCKER构建MariaDB>DOCKER构建MariaDB</a></li><li><a href=/zh/posts/container-tech/docker-container-app/ title=DOCKER构建容器化应用>DOCKER构建容器化应用</a></li><li><a href=/zh/posts/container-tech/docker-wechat/ title=DOCKER运行微信桌面客户端>DOCKER运行微信桌面客户端</a></li><li><a href=/zh/posts/container-tech/docker-desktop-windows/ title="WINDOWS上的DOCKER DESKTOP">WINDOWS上的DOCKER DESKTOP</a></li><li><a href=/zh/posts/container-tech/docker-compose-v2/ title="开始使用DOCKER COMPOSE V2">开始使用DOCKER COMPOSE V2</a></li><li><a href=/zh/posts/container-tech/smallest-web-container/ title=最小化静态WEB容器实践>最小化静态WEB容器实践</a></li><li><a href=/zh/posts/container-tech/docker-mqtt-broker/ title=本地环境运行MQTT容器>本地环境运行MQTT容器</a></li><li><a href=/zh/posts/container-tech/docker-context-remote/ title=管理远程DOCKER主机>管理远程DOCKER主机</a></li></ul></li><li><i class="fas fa-minus-circle"></i><a class=active href=/zh/posts/devops/>开发运维</a><ul class=active><li><a href=/zh/posts/devops/github-actions/ title="GITHUB ACTIONS工作流">GITHUB ACTIONS工作流</a></li><li><a href=/zh/posts/devops/gitlab-ci-docker/ title="GITLAB CI自动部署容器应用">GITLAB CI自动部署容器应用</a></li><li><a class=active href=/zh/posts/devops/k3s-terraform-ansible/ title=IaC示例-TERRAFORM&amp;ANSIBLE创建K3S集群>IaC示例-TERRAFORM&amp;ANSIBLE创建K3S集群</a></li><li><a href=/zh/posts/devops/tf-rover/ title=TF执行计划可视化>TF执行计划可视化</a></li><li><a href=/zh/posts/devops/tf-aws-lightsail/ title="TF管理AWS LIGHTSAIL实例">TF管理AWS LIGHTSAIL实例</a></li><li><a href=/zh/posts/devops/single-application-cicd/ title=一体化CI/CD平台>一体化CI/CD平台</a></li><li><a href=/zh/posts/devops/open-gitops/ title="解读OPEN GITOPS 1.0">解读OPEN GITOPS 1.0</a></li><li><a href=/zh/posts/devops/tf-cloud/ title="迁移本地项目到TF CLOUD">迁移本地项目到TF CLOUD</a></li></ul></li><li><i class="fas fa-plus-circle"></i><a href=/zh/posts/opentool/>开源工具</a><ul><li><a href=/zh/posts/opentool/diun-intro/ title=DIUN-容器镜像更新通知>DIUN-容器镜像更新通知</a></li><li><a href=/zh/posts/opentool/rclone-sync/ title=RCLOUD与云存储同步>RCLOUD与云存储同步</a></li><li><a href=/zh/posts/opentool/find-files/ title=文件系统查找工具>文件系统查找工具</a></li></ul></li><li><i class="fas fa-plus-circle"></i><a href=/zh/posts/programming/>编程</a><ul><li><a href=/zh/posts/programming/cocktail-improve/ title=改良鸡尾酒排序算法>改良鸡尾酒排序算法</a></li><li><a href=/zh/posts/programming/shell-debug/ title=调试Shell脚本错误>调试Shell脚本错误</a></li></ul></li><li><a href=/zh/posts/markdown-sample/ title=Markdown示例>Markdown示例</a></li><li><a href=/zh/posts/shortcodes/ title=短代码示例>短代码示例</a></li></div></ul></div></div></div></section><section class=content-section id=content-section><div class=content><div class="container p-0 read-area"><div class="hero-area col-sm-12" id=hero-area style=background-image:url(/zh/posts/devops/k3s-terraform-ansible/k3s-terraform-ansible.jpeg)></div><div class=page-content><div class="author-profile ml-auto align-self-lg-center"><img class=rounded-circle src=/images/author/mengz_hu7eb9b9c6ecaf6b9d36921f96f3e8114d_65269_120x120_fit_box_3.png alt="Author Image"><h5 class=author-name>You Mengzhe</h5><p>2022年10月13日星期四</p></div><div class=title><h1>IaC示例-TERRAFORM&amp;ANSIBLE创建K3S集群</h1></div><div class=taxonomy-terms><ul style=padding-left:0><li class=rounded><a href=/zh/tags/terraform/ class="btn, btn-sm">terraform</a></li><li class=rounded><a href=/zh/tags/ansible/ class="btn, btn-sm">ansible</a></li><li class=rounded><a href=/zh/tags/k3s/ class="btn, btn-sm">k3s</a></li></ul></div><div class=post-content id=post-content><p><a href=../../k8s/lightweight-k3s/>轻量级Kubernetes集群-K3S</a>文章介绍了一个轻量级的 Kubernetes 发行版本 - <a href=https://k3s.io target=_blank rel=noopener>k3s</a> 。<br>这篇文章，我们将通过使用以下几个 IaC（Infrastructure as Code）工具，在本地环境（例如你的 Linux 工作台）自动化部署一个可用的 K3S 集群</p><ul><li><a href=https://www.packer.io target=_blank rel=noopener>Packer</a> - <a href=https://www.hashicorp.com/ target=_blank rel=noopener>HashiCorp</a> 开源的一个系统镜像构建工具。</li><li><a href=https://www.terraform.io target=_blank rel=noopener>Terraform</a> - HashiCorp 开源的基础设施及代码自动化管理工具。</li><li><a href=https://www.ansible.com target=_blank rel=noopener>Ansible</a> - RedHat赞助的一个开源社区项目，IT自动化配置工具。</li></ul><h2 id=环境需求>环境需求</h2><p>本演示将的所有操作将在一台支持虚拟化（kvm + qemu + libvirt) Linux 主机上执行。</p><p>在 <a href=https://www.ubuntu.com target=_blank rel=noopener>Ubuntu</a> 上启用虚拟化环境，请参考 <a href=https://ubuntu.com/blog/kvm-hyphervisor target=_blank rel=noopener>KVM hypervisor: a beginner&rsquo;s guide</a> 。<br>在 <a href=https://getfedora.org target=_blank rel=noopener>Fedora</a> 上启用虚拟化环境，请参考 <a href=https://docs.fedoraproject.org/en-US/quick-docs/getting-started-with-virtualization/ target=_blank rel=noopener>Getting startyed with virtualization (libvirt)</a> 。<br>在 <a href=https://opensuse.org target=_blank rel=noopener>openSUSE</a> 上启用虚拟化环境，请参考 <a href=https://doc.opensuse.org/documentation/leap/virtualization/html/book-virtualization/ target=_blank rel=noopener>Virtualization Guide</a> 。</p><p>其他 Linux 发行版，请参考相关文档。</p><p>我是在我的笔记本电脑上执行的操作，系统是 openSUSE Leap 15.4 。</p><p>除了上述的虚拟化需求外，还需要在系统上安装上面提到的几个工具。如果你的环境中有 <a href=https://docs.brew.sh/Homebrew-on-Linux target=_blank rel=noopener>LinuxBrew</a>，则可通过 Brew 直接安装</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ brew install packer terraform ansible
+</span></span></code></pre></div><p>否则，请下载各自官方发布的二进制包，解压后放到 <code>PATH</code> 路径中。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ packer version
+</span></span><span style=display:flex><span>Packer v1.8.3
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>❯ terraform version
+</span></span><span style=display:flex><span>Terraform v1.3.2
+</span></span><span style=display:flex><span>on linux_amd64
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>❯ ansible --version
+</span></span><span style=display:flex><span>ansible <span style=color:#f92672>[</span>core 2.13.4<span style=color:#f92672>]</span>
+</span></span></code></pre></div><p>因为本示例中，使用了 Terraform 的 <a href=https://github.com/radekg/terraform-provisioner-ansible target=_blank rel=noopener>ansbile provisioner</a>，因此还需要安装这个插件</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ mkdir -p ~/.terraform.d/plugins
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>❯ curl -sL <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span><span style=color:#ae81ff></span>  https://raw.githubusercontent.com/radekg/terraform-provisioner-ansible/master/bin/deploy-release.sh <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span><span style=color:#ae81ff></span>  --output /tmp/deploy-release.sh
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>❯ chmod +x /tmp/deploy-release.sh
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>❯ /tmp/deploy-release.sh -v 2.5.0
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>❯ rm -rf /tmp/deploy-release.sh
+</span></span></code></pre></div><p>完成以上需求之后，我们将开始执行如下步骤</p><ul><li>使用 Packer 创建一个基于 <a href=https://mirrors.ustc.edu.cn/debian-cd/current/amd64/iso-cd/debian-11.5.0-amd64-netinst.iso target=_blank rel=noopener>Debian 11.5.0</a> 的虚拟机系统模板镜像，该镜像中，将会配置好 SSH 免密登陆密钥。</li><li>使用 Terraform 在本地虚拟环境中，创建出需要的虚拟机，并生成后续 ansible 配置虚拟机需要的 inventory 文件。</li><li>使用 Ansible 配置虚拟机节点安装 k3s 集群，以及演示应用。</li></ul><p>以上所有步骤的代码在 （https://github.com/mengzyou/iac-examples）</p><p>将代码克隆到本地</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ git clone https://github.com/mengzyou/iac-examples.git
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>❯ cd iac-example/k3scluster/
+</span></span></code></pre></div><h2 id=创建虚拟机镜像>创建虚拟机镜像</h2><p>首先我们需要通过 Packer 创建一个虚拟机系统镜像，后续需要使用该镜像来创建虚拟机实例，需要的代码在 <strong>k3scluster/packer/</strong> 目录下</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ cd packer/
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>❯ tree 
+</span></span><span style=display:flex><span>.
+</span></span><span style=display:flex><span>|-- Makefile
+</span></span><span style=display:flex><span>|-- base.pkr.hcl
+</span></span><span style=display:flex><span><span style=color:#e6db74>`</span>-- preseed
+</span></span><span style=display:flex><span>    |-- debian11.txt
+</span></span></code></pre></div><p>这里通过 Makefile 来调用 packer 进行镜像的构建，和上传到虚拟化环境，注意以下变量配置</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-makefile data-lang=makefile><span style=display:flex><span>LIBVIRT_HYPERVISOR_URI <span style=color:#f92672>:=</span> <span style=color:#e6db74>&#34;qemu:///system&#34;</span>
+</span></span><span style=display:flex><span>LIBVIRT_TEMPLATES_IMAGES_POOL <span style=color:#f92672>:=</span> <span style=color:#e6db74>&#34;templates&#34;</span>
+</span></span><span style=display:flex><span>LIBVIRT_TEMPLATES_IMAGES_POOL_DIR <span style=color:#f92672>:=</span> <span style=color:#e6db74>&#34;/var/lib/libvirt/images/templates&#34;</span>
+</span></span><span style=display:flex><span>LIBVIRT_IMAGE_NAME <span style=color:#f92672>:=</span> <span style=color:#e6db74>&#34;debian11-5.qcow2&#34;</span>
+</span></span><span style=display:flex><span>ROOT_PASSWORD <span style=color:#f92672>:=</span> <span style=color:#e6db74>&#34;rootPassword&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>$(</span>eval SSH_IDENTITY=<span style=color:#66d9ef>$(</span>shell find ~/.ssh/ -name &#39;id_*&#39; -not -name &#39;*.pub&#39; | head -n 1<span style=color:#66d9ef>))</span>
+</span></span></code></pre></div><p>默认使用 <em>${HOME}/.ssh/id_rsa</em> 的密钥对作为 SSH 免密访问的密钥，如果没有，请先创建一个。</p><p>执行 <code>make image</code> 进行镜像的构建，以及在本地虚拟化环境创建名为 <strong>templates</strong> 的存储池，并将镜像上传到该存储池中，命名为 <strong>debian11-5.qcow2</strong> 的卷，具体的代码，请查看 <em>Makefile</em> 。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ make image
+</span></span><span style=display:flex><span>...
+</span></span></code></pre></div><p>完成之后，我们可以通过 <strong>virsh</strong> 命令查看镜像卷</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ sudo virsh vol-list --pool templates
+</span></span><span style=display:flex><span> 名称               路径
+</span></span><span style=display:flex><span>------------------------------------------------------------------------
+</span></span><span style=display:flex><span> debian11-5.qcow2   /var/lib/libvirt/images/templates/debian11-5.qcow2
+</span></span></code></pre></div><p><strong>补充</strong>: 在文件 <em>base.pkr.hcl</em> 中，对 iso 文件源的配置</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-hcl data-lang=hcl><span style=display:flex><span>  iso_url           <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;https://mirrors.ustc.edu.cn/debian-cd/current/amd64/iso-cd/debian-11.5.0-amd64-netinst.iso&#34;</span>
+</span></span></code></pre></div><p>配置网络地址时，在 packer 进行构建时，可能会下载 iso 文件超时而导致构建失败。可通过预先下载对应的 iso 文件到本地文件系统，然后将 <code>iso_url</code> 配置为本地路径，例如</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-hcl data-lang=hcl><span style=display:flex><span>  iso_url           <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;/data/debian-11.5.0-amd64-netinst.iso&#34;</span>
+</span></span></code></pre></div><p>这样可以避免由于网络问题导致构建失败。</p><h2 id=创建虚拟机实例>创建虚拟机实例</h2><p>接下来，我们将使用 Terraform 创建并初始化集群所需要的虚拟机实例，进入 <em>k3scluster/terraform/</em> 目录</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ cd ../terraform/
+</span></span></code></pre></div><p>该目录下包含了创建集群所需虚拟机资源的定义，首先看 <em>provider.tf</em> 文件</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tf data-lang=tf><span style=display:flex><span><span style=color:#a6e22e>terraform</span> {
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>required_providers</span> {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>libvirt</span> = {
+</span></span><span style=display:flex><span>      <span style=color:#a6e22e>source</span>  = <span style=color:#e6db74>&#34;dmacvicar/libvirt&#34;</span>
+</span></span><span style=display:flex><span>      <span style=color:#a6e22e>version</span> = <span style=color:#e6db74>&#34;0.7.0&#34;</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>required_version</span> = <span style=color:#e6db74>&#34;&gt;= 0.13&#34;</span>
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#66d9ef>
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>provider</span> <span style=color:#e6db74>&#34;libvirt&#34;</span> {
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>uri</span> = var.<span style=color:#a6e22e>libvirt_uri</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>因为我们需要通过 libvirt 创建虚拟机，因此这里需要 <a href=https://registry.terraform.io/providers/dmacvicar/libvirt/latest target=_blank rel=noopener>dmacvicar/libvirt</a> 的 Provider，该 Provider 的 uri 配置为变量 <code>var.libvirt_uri</code>，默认为 <code>qemu:///system</code>，也就是本地虚拟环境。</p><p>其他需要的变量定义都放在 <em>variables.tf</em> 文件中。资源文件 <em>vms.tf</em> 定义了需要创建的资源，其中包括</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tf data-lang=tf><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;libvirt_network&#34;</span> <span style=color:#e6db74>&#34;network&#34;</span> {
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>name</span>      = var.<span style=color:#a6e22e>net_name</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>mode</span>      = <span style=color:#e6db74>&#34;nat&#34;</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>domain</span>    = var.<span style=color:#a6e22e>net_domain</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>addresses</span> = [var.<span style=color:#a6e22e>subnet</span>]
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>dhcp</span> {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>enabled</span> = <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>dns</span> {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>enabled</span>    = <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>local_only</span> = <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>创建一个 NAT 模式的虚拟网络，默认的网络地址为 <code>192.168.123.0/24</code>，可通过变量 <code>net_domain</code> 修改。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tf data-lang=tf><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;libvirt_volume&#34;</span> <span style=color:#e6db74>&#34;disk&#34;</span> {
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>count</span>            = length(var.<span style=color:#a6e22e>vms</span>)
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>name</span>             = <span style=color:#e6db74>&#34;</span><span style=color:#e6db74>${</span>var.<span style=color:#a6e22e>vms</span>[count.<span style=color:#a6e22e>index</span>].<span style=color:#a6e22e>name</span><span style=color:#e6db74>}</span><span style=color:#e6db74>.qcow2&#34;</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>pool</span>             = <span style=color:#e6db74>&#34;default&#34;</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>base_volume_name</span> = var.<span style=color:#a6e22e>template_img</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>base_volume_pool</span> = var.<span style=color:#a6e22e>templates_pool</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>根据变量 <strong>vms</strong> 定义的虚拟机实例，创建虚拟机的系统磁盘，基于变量 <strong>templates_pool</strong> 和 <strong>template_image</strong> 指定的模板镜像，默认也就是上面我们通过 Packer 创建的系统镜像。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tf data-lang=tf><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;libvirt_domain&#34;</span> <span style=color:#e6db74>&#34;vm&#34;</span> {
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>count</span>      = length(var.<span style=color:#a6e22e>vms</span>)
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>name</span>       = var.<span style=color:#a6e22e>vms</span>[count.<span style=color:#a6e22e>index</span>].<span style=color:#a6e22e>name</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>autostart</span>  = <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>qemu_agent</span> = <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>vcpu</span>       = lookup(var.<span style=color:#a6e22e>vms</span>[count.<span style=color:#a6e22e>index</span>], <span style=color:#e6db74>&#34;cpu&#34;</span>, <span style=color:#ae81ff>1</span>)
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>memory</span>     = lookup(var.<span style=color:#a6e22e>vms</span>[count.<span style=color:#a6e22e>index</span>], <span style=color:#e6db74>&#34;memory&#34;</span>, <span style=color:#ae81ff>512</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>...
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p><code>libvirt_domain</code> 资源定义了需要创建的虚拟机实例，并通过 <code>ansible provisioner</code> 进行是初始化配置（配置静态IP地址和主机名）。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-tf data-lang=tf><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;local_file&#34;</span> <span style=color:#e6db74>&#34;ansible_hosts&#34;</span> {
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>content</span> = templatefile(<span style=color:#e6db74>&#34;./tpl/ansible_hosts.tpl&#34;</span>, {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>vms</span>        = var.<span style=color:#a6e22e>vms</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>subnet</span>     = var.<span style=color:#a6e22e>subnet</span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>gateway</span>    = cidrhost(var.<span style=color:#a6e22e>subnet</span>, <span style=color:#ae81ff>1</span>)
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>mask</span>       = cidrnetmask(var.<span style=color:#a6e22e>subnet</span>)
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>nameserver</span> = cidrhost(var.<span style=color:#a6e22e>subnet</span>, <span style=color:#ae81ff>1</span>)
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>user</span>       = var.<span style=color:#a6e22e>user</span>
+</span></span><span style=display:flex><span>  })
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>filename</span>             = <span style=color:#e6db74>&#34;../ansible/k3s_hosts&#34;</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>file_permission</span>      = <span style=color:#ae81ff>0644</span>
+</span></span><span style=display:flex><span>  <span style=color:#a6e22e>directory_permission</span> = <span style=color:#ae81ff>0755</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>该资源定义通过模板文件创建虚拟机实例的 Ansible Inventory 文件，便于下一步通过 Ansible 进行 K3S 集群的创建。</p><p>在应用之前，我们需要配置 <strong>vms</strong> 变量，来指定我们需要的虚拟机实例信息</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ cp .k3svms.tfvars k3dcluster.auto.tfvars
+</span></span></code></pre></div><pre tabindex=0><code class=language-tfvars data-lang=tfvars>vms = [
+  {
+    name   = &#34;control&#34;
+    cpu    = 1
+    memory = 1024
+    ip     = 10
+    groups = [&#34;k3s&#34;]
+    vars   = {
+      role = &#34;server&#34;
+    }
+  },
+  {
+    name   = &#34;worker1&#34;
+    cpu    = 1
+    memory = 1024
+    ip     = 21
+    groups = [&#34;k3s&#34;]
+    vars = {
+      role = &#34;agent&#34;
+    }
+  },
+  {
+    name   = &#34;worker2&#34;
+    cpu    = 1
+    memory = 1024
+    ip     = 22
+    groups = [&#34;k3s&#34;]
+    vars = {
+      role = &#34;agent&#34;
+    }
+  }
+]
+</code></pre><p>上面定义了3台实例，1台作为k3s集群的 server 节点，2台作为k3s集群的 role 节点，默认IP地址将会被配置为</p><ul><li>control : 192.168.123.10</li><li>worker1 : 192.168.123.21</li><li>worker2 : 192.168.123.22</li></ul><p>接下来我们将执行 Terrform 操作</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ terraform init
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>❯ terraform plan  
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>❯ terrafrom apply --auto-approve
+</span></span><span style=display:flex><span>...
+</span></span><span style=display:flex><span>Apply complete! Resources: <span style=color:#ae81ff>8</span> added, <span style=color:#ae81ff>0</span> changed, <span style=color:#ae81ff>0</span> destroyed.
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Outputs:
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>vms_ip_addresses <span style=color:#f92672>=</span> <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>  <span style=color:#e6db74>&#34;control&#34;</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;192.168.123.10&#34;</span>
+</span></span><span style=display:flex><span>  <span style=color:#e6db74>&#34;worker1&#34;</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;192.168.123.21&#34;</span>
+</span></span><span style=display:flex><span>  <span style=color:#e6db74>&#34;worker2&#34;</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;192.168.123.22&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>完成之后，3台虚拟机将会创建并运行，同时在 <em>k3scluster/ansible/</em> 目录中将创建名为 <em>k3s_hosts</em> 的 Inventory 文件。</p><h2 id=部署k3s集群>部署K3S集群</h2><p>完成虚拟机的创建之后，我们进入 <em>k3scluster/ansible/</em> 目录，进行下一步操作</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ cd ../ansible/
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>❯ ls
+</span></span><span style=display:flex><span> apps.yml   init.yml   k3s.yaml   k3s_hosts   main.yml   roles
+</span></span></code></pre></div><p>其中文件 <em>k3s_hosts</em> 是在上一步生成的 Inventory 文件，<em>init.yml</em> 文件是初始化节点的 playbook，在上一步的 Terraform 应用中以及执行了。<br><em>main.yml</em> 文件是安装配置 K3S 集群的 playbook，<em>roles/</em> 目录包含了所有的任务。</p><p>在执行具体任务之前，我们可以通过 ansbile 测试下虚拟机节点的可用性</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ ansible -i k3s_hosts all -m ping
+</span></span><span style=display:flex><span>worker1 | SUCCESS <span style=color:#f92672>=</span>&gt; <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;changed&#34;</span>: false,
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;ping&#34;</span>: <span style=color:#e6db74>&#34;pong&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>worker2 | SUCCESS <span style=color:#f92672>=</span>&gt; <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;changed&#34;</span>: false,
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;ping&#34;</span>: <span style=color:#e6db74>&#34;pong&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span><span style=display:flex><span>control | SUCCESS <span style=color:#f92672>=</span>&gt; <span style=color:#f92672>{</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;changed&#34;</span>: false,
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;ping&#34;</span>: <span style=color:#e6db74>&#34;pong&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>}</span>
+</span></span></code></pre></div><p>接下来执行 <em>main.yml</em> playbook</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ ansible-playbook -i k3s_hosts main.yml
+</span></span><span style=display:flex><span>...
+</span></span><span style=display:flex><span>PLAY RECAP ********************************************
+</span></span><span style=display:flex><span>control                    : ok<span style=color:#f92672>=</span><span style=color:#ae81ff>16</span>   changed<span style=color:#f92672>=</span><span style=color:#ae81ff>7</span>    unreachable<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>    failed<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>    skipped<span style=color:#f92672>=</span><span style=color:#ae81ff>4</span>    rescued<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>    ignored<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>   
+</span></span><span style=display:flex><span>worker1                    : ok<span style=color:#f92672>=</span><span style=color:#ae81ff>8</span>    changed<span style=color:#f92672>=</span><span style=color:#ae81ff>4</span>    unreachable<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>    failed<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>    skipped<span style=color:#f92672>=</span><span style=color:#ae81ff>6</span>    rescued<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>    ignored<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>   
+</span></span><span style=display:flex><span>worker2                    : ok<span style=color:#f92672>=</span><span style=color:#ae81ff>8</span>    changed<span style=color:#f92672>=</span><span style=color:#ae81ff>4</span>    unreachable<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>    failed<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>    skipped<span style=color:#f92672>=</span><span style=color:#ae81ff>6</span>    rescued<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>    ignored<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>
+</span></span></code></pre></div><p>这将会调用 <em>roles/k3s/</em> 里定义的任务，安装和配置 K3S 集群，具体的执行任务，请查看 roles 里的代码。<br>成功之后，会发现在当前目录生成了一个 <em>k3s.yaml</em> 的文件，这是从 control 节点获取的 kubeconfig 文件，我们需要替换一下 api-server 的 IP</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ sed -i <span style=color:#e6db74>&#39;s/127.0.0.1/192.168.123.10/g&#39;</span> k3s.yaml
+</span></span></code></pre></div><p>之后，我们就可以通过该 kubeconfig 文件来访问该集群了，例如</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ kubectl --kubeconfig k3s.yaml cluster-info
+</span></span><span style=display:flex><span>Kubernetes control plane is running at https://192.168.123.10:6443
+</span></span><span style=display:flex><span>CoreDNS is running at https://192.168.123.10:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+</span></span><span style=display:flex><span>Metrics-server is running at https://192.168.123.10:6443/api/v1/namespaces/kube-system/services/https:metrics-server:https/proxy
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>❯ kubectl --kubeconfig k3s.yaml get no
+</span></span><span style=display:flex><span>NAME                STATUS   ROLES                  AGE     VERSION
+</span></span><span style=display:flex><span>worker2.k3s.local   Ready    &lt;none&gt;                 4m19s   v1.25.2+k3s1
+</span></span><span style=display:flex><span>worker1.k3s.local   Ready    &lt;none&gt;                 4m18s   v1.25.2+k3s1
+</span></span><span style=display:flex><span>control.k3s.local   Ready    control-plane,master   4m39s   v1.25.2+k3s1
+</span></span></code></pre></div><p>至此，我们就完成了一个 K3S 集群的部署，并可以在部署其他应用。最后，我们也可以继续使用 ansible 来部署演示应用。<br>文件 <em>apps.yml</em> 是部署演示应用的 playbook，其通过 <em>roles/k3s-app/</em> 任务，与 k3s server 节点交互来进行应用部署，其会部署 <a href=https://traefik.io target=_blank rel=noopener>Traefik</a> Ingress 和一个 whoami web 应用，直接执行</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ ansible-playbook -i k3s_hosts apps.yml
+</span></span><span style=display:flex><span>...
+</span></span><span style=display:flex><span>PLAY RECAP *****************************************************
+</span></span><span style=display:flex><span>control                    : ok<span style=color:#f92672>=</span><span style=color:#ae81ff>4</span>    changed<span style=color:#f92672>=</span><span style=color:#ae81ff>3</span>    unreachable<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>    failed<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>    skipped<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>    rescued<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>    ignored<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span> 
+</span></span></code></pre></div><p>完成之后，通过 kubectl 命令查看部署的 pod</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ kubectl --kubeconfig k3s.yaml get po -n whoami
+</span></span><span style=display:flex><span>NAME                      READY   STATUS    RESTARTS   AGE
+</span></span><span style=display:flex><span>whoami-5b844ffb57-mffgf   1/1     Running   <span style=color:#ae81ff>0</span>          79s
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>❯ kubectl --kubeconfig k3s.yaml get ingressroute -n whoami
+</span></span><span style=display:flex><span>NAME     AGE
+</span></span><span style=display:flex><span>whoami   2m12s
+</span></span></code></pre></div><p>尝试访问 whoami 应用</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ http http://192.168.123.10/
+</span></span><span style=display:flex><span>HTTP/1.1 <span style=color:#ae81ff>200</span> OK
+</span></span><span style=display:flex><span>Content-Length: <span style=color:#ae81ff>413</span>
+</span></span><span style=display:flex><span>Content-Type: text/plain; charset<span style=color:#f92672>=</span>utf-8
+</span></span><span style=display:flex><span>Date: Thu, <span style=color:#ae81ff>13</span> Oct <span style=color:#ae81ff>2022</span> 08:58:06 GMT
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>Hostname: whoami-5b844ffb57-mffgf
+</span></span><span style=display:flex><span>IP: 127.0.0.1
+</span></span><span style=display:flex><span>IP: ::1
+</span></span><span style=display:flex><span>IP: 10.42.2.3
+</span></span><span style=display:flex><span>IP: fe80::b83a:19ff:febe:7a7f
+</span></span><span style=display:flex><span>RemoteAddr: 10.42.0.5:60580
+</span></span><span style=display:flex><span>GET / HTTP/1.1
+</span></span><span style=display:flex><span>Host: 192.168.123.10
+</span></span><span style=display:flex><span>User-Agent: HTTPie/3.2.1
+</span></span><span style=display:flex><span>Accept: */*
+</span></span><span style=display:flex><span>Accept-Encoding: gzip, deflate
+</span></span><span style=display:flex><span>X-Forwarded-For: 192.168.123.1
+</span></span><span style=display:flex><span>X-Forwarded-Host: 192.168.123.10
+</span></span><span style=display:flex><span>X-Forwarded-Port: <span style=color:#ae81ff>80</span>
+</span></span><span style=display:flex><span>X-Forwarded-Proto: http
+</span></span><span style=display:flex><span>X-Forwarded-Server: traefik-rjbr9
+</span></span><span style=display:flex><span>X-Real-Ip: 192.168.123.1
+</span></span></code></pre></div><h2 id=销毁集群>销毁集群</h2><p>通过以上方式创建的 K3S 集群，我们可以很方便的通过 Terraform 销毁并重新创建。当完成了相关的应用测试之后，我们可以通过以下命令销毁集群</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>❯ rm -f k3s.yaml
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>❯ cd ../terraform/
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>❯ terraform destroy --auto-approve
+</span></span><span style=display:flex><span>...
+</span></span><span style=display:flex><span>Destroy complete! Resources: <span style=color:#ae81ff>8</span> destroyed.
+</span></span></code></pre></div><p>我就将会删除所创建的所有相关资源，恢复干净的本地环境。</p><p>当需要集群的时候，只需要执行上面的步骤就可以创建一个新的 K3S 集群。</p><h2 id=总结>总结</h2><p>这里演示了一个 IaC 场景，通过代码化基础设施资源，我们可以很容易地通过 Terraform，Ansible 等工具管理并维护相应的基础设施资源。<br>这里我们演示在本地虚拟化环境创建虚拟机并部署k3S集群，那通过 Terraform 的其他 Providers (例如 AWS, GCP等共有云)，我们可以代码化管理我们的公有云基础设施环境，并可以将相应的流程加入 CI/CD 中，可快速创建需要的环境做测试。</p><p>IaC 是现代化基础设施运维的方向，结合相关工具，我们可以轻松实现基础设施自动化运维。</p></div><div class="row pl-3 pr-3"><div class="col-md-6 share-buttons"><strong>Share on:</strong>
+<a class="btn btn-sm facebook-btn" href="https://www.facebook.com/sharer.php?u=%2fzh%2fposts%2fdevops%2fk3s-terraform-ansible%2f" target=_blank><i class="fab fa-facebook"></i></a>
+<a class="btn btn-sm twitter-btn" href="https://twitter.com/share?url=%2fzh%2fposts%2fdevops%2fk3s-terraform-ansible%2f&text=IaC%e7%a4%ba%e4%be%8b-TERRAFORM%26ANSIBLE%e5%88%9b%e5%bb%baK3S%e9%9b%86%e7%be%a4&via=Mengz%27s%20Space%20..." target=_blank><i class="fab fa-twitter"></i></a>
+<a class="btn btn-sm linkedin-btn" href="https://www.linkedin.com/shareArticle?url=%2fzh%2fposts%2fdevops%2fk3s-terraform-ansible%2f&title=IaC%e7%a4%ba%e4%be%8b-TERRAFORM%26ANSIBLE%e5%88%9b%e5%bb%baK3S%e9%9b%86%e7%be%a4" target=_blank><i class="fab fa-linkedin"></i></a></div></div><hr><div class="row next-prev-navigator"><div class="col-md-6 previous-article"><a href=/zh/posts/devops/gitlab-ci-docker/ title="GITLAB CI自动部署容器应用" class="btn btn-outline-info"><div><i class="fas fa-chevron-circle-left"></i> Prev</div><div class=next-prev-text>GITLAB CI自动部署容器应用</div></a></div><div class="col-md-6 next-article"><a href=/zh/posts/devops/tf-rover/ title=TF执行计划可视化 class="btn btn-outline-info"><div>Next <i class="fas fa-chevron-circle-right"></i></div><div class=next-prev-text>TF执行计划可视化</div></a></div></div><hr></div></div></div><a id=scroll-to-top class=btn><i class="fas fa-chevron-circle-up"></i></a></section><section class=toc-section id=toc-section><div class=toc-holder><h5 class="text-center pl-3">Table of Contents</h5><hr><div class=toc><nav id=TableOfContents><ul><li><a href=#环境需求>环境需求</a></li><li><a href=#创建虚拟机镜像>创建虚拟机镜像</a></li><li><a href=#创建虚拟机实例>创建虚拟机实例</a></li><li><a href=#部署k3s集群>部署K3S集群</a></li><li><a href=#销毁集群>销毁集群</a></li><li><a href=#总结>总结</a></li></ul></nav></div></div></section></div><footer id=footer class="container-fluid text-center align-content-center footer pb-2"><div class="container pt-5"><div class="row text-left"><div class="col-md-4 col-sm-12"><h5>Navigation</h5><ul><li class=nav-item><a class=smooth-scroll href=/zh/#about>关于</a></li><li class=nav-item><a class=smooth-scroll href=/zh/#skills>技能</a></li><li class=nav-item><a class=smooth-scroll href=/zh/#experiences>工作经历</a></li><li class=nav-item><a class=smooth-scroll href=/zh/#education>教育</a></li><li class=nav-item><a class=smooth-scroll href=/zh/#recent-posts>近期文章</a></li><li class=nav-item><a class=smooth-scroll href=/zh/#accomplishments>技能学习</a></li></ul></div><div class="col-md-4 col-sm-12"><h5>Contact me:</h5><ul><li><a href=mailto:mengz.you@outlook.com target=_blank rel=noopener><span><i class="fas fa-envelope"></i></span> <span>mengz.you@outlook.com</span></a></li><li><a href=https://github.com/mengzyou target=_blank rel=noopener><span><i class="fab fa-github"></i></span> <span>mengzyou</span></a></li><li><a href=https://www.linkedin.com/in/mengzyou target=_blank rel=noopener><span><i class="fab fa-linkedin"></i></span> <span>You Mengzhe</span></a></li></ul></div></div></div><hr><div class=container><div class="row text-left"><div class=col-md-4><a id=theme href=https://github.com/hugo-toha/toha target=_blank rel=noopener><img src=/images/theme-logo_hu8376fd15465fef26ffe66b6bcf0ca686_13669_32x0_resize_box_3.png alt="Toha Theme Logo">
+Toha</a></div><div class="col-md-4 text-center">© 2023 Copyright.</div><div class="col-md-4 text-right"><a id=hugo href=https://gohugo.io/ target=_blank rel=noopener>Powered by
+<img src=/images/hugo-logo.svg alt="Hugo Logo" height=18></a></div></div></div></footer><script src=/application.d06ddacd4080231ac954a78539ea5f5a1921ebbd740618450ead7a0e8466dfda.js integrity="sha256-0G3azUCAIxrJVKeFOepfWhkh6710BhhFDq16DoRm39o=" defer></script></body></html>

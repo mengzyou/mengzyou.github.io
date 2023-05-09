@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>terrafrom on Mengz's Space ...</title><link>/zh/tags/terrafrom/</link><description>Recent content in terrafrom on Mengz's Space ...</description><generator>Hugo -- gohugo.io</generator><language>en_US</language><lastBuildDate>Fri, 26 Nov 2021 16:13:46 +0800</lastBuildDate><atom:link href="/zh/tags/terrafrom/index.xml" rel="self" type="application/rss+xml"/><item><title>TF执行计划可视化</title><link>/zh/posts/devops/tf-rover/</link><pubDate>Fri, 26 Nov 2021 16:13:46 +0800</pubDate><guid>/zh/posts/devops/tf-rover/</guid><description>之前我们通过一篇文章入门了使用Terrafrom以声明式配置文件（可版本化的代码）来创建和管理基础设施资源。
+在使用命令terraform apply之前，我们通常使用terraform plan来查看执行计划，输出的执行计划以类似“git diff”的文本方式描述。这里我们将介绍如何以图形可是化的方式来了解执行计划。
+Terrafrom Graph 首先Terraform CLI工具自带了一个子命令 - graph，graph命令用于生产配置和执行计划的图形表示，其输出是DOT格式，可以通过Graphviz转化为图片，例如在Linux终端下
+❯ terraform graph | dot -Tsvg &amp;gt; graph.svg 对于简单的项目（管理的资源对象比较的情况），我们可以通过这个图形了解资源对象的关系。但是如果一个项目管理了大量的资源对象，使用graph生成的图形会显得错中复杂，而且图形文件也比较庞大。
+那接下我们将介绍一款开源的可视化工具。
+Rover Rover是一款开源的，可交互的Terraform配置和执行计划可视化工具，其通过Web服务的方式，是我们可以通过浏览器查看生成的图形，并进行一些交互操作。
+使用Rover非常容易，可以从其Github项目的Release下载为各平台编译好的二进制文件（命令）来运行，也可以通过Docker容器的方式运行。
+如果使用下载的二进制文件，将下载好的二进制文件（例如 rover_v0.2.2）放到PATH路径下，例如 /usr/local/bin/rover，接下來在Terraform项目的文件夹下执行
+❯ rover 2021/11/26 16:59:34 Starting Rover... 2021/11/26 16:59:34 Initializing Terraform... 2021/11/26 16:59:35 Generating plan... 2021/11/26 16:59:37 Parsing configuration... 2021/11/26 16:59:37 Generating resource overview... 2021/11/26 16:59:37 Generating resource map... 2021/11/26 16:59:37 Generating resource graph... 2021/11/26 16:59:37 Done generating assets. 2021/11/26 16:59:37 Rover is running on 0.</description></item><item><title>迁移本地项目到TF CLOUD</title><link>/zh/posts/devops/tf-cloud/</link><pubDate>Thu, 25 Nov 2021 10:49:14 +0800</pubDate><guid>/zh/posts/devops/tf-cloud/</guid><description>之前文章我们尝试了在本地环境使用Terraform来创建和管理AWS Lightsail资源，对于管理一些云资源，我们需要在本地安装相应的CLI工具和配置访问相应云资源的凭据（例如AWS CLI， AccessKeyID等），Terraform通过调用本地的CLI工具或者云API来管理云资源的状态，其默认使用的是local类型的Backend，资源的状态文件(.tfstate)也是保存在本地文件目录中的。
+这篇文章我们将尝试使用remote类型的Backend，将项目迁移到Terraform Cloud去执行，并且由Terraform Cloud来管理资源状态。
+什么是Terraform Cloud Terraform Cloud 是一个管理Terraform在一致且可靠的环境中运行的SaaS应用，从而可以替换在本地机器是执行Terraform项目，其存储共享的状态和机密数据，并可以连接到版本控制系统（如 Git)，使得我们可以在团队中将基础设施作为代码进行工作。
+Terraform是一个商业应用，团队和商业使用将会收取费用并提供了更多的高级功能。但对于个人用户，可以免费使用基本的功能。关于费用和功能详情，可以参考 (https://www.hashicorp.com/products/terraform/pricing)。
+首先我们需要注册一个Terraform Cloud的账号，访问 https://app.terraform.io/public/signup/account ，根据提示注册账号
+注册完成后第一次登陆Terraform Cloud，其会询问如何开始一个项目，这里我们选择 Start from scratch，也就是将从一个空模板开始
+接下来我们需要创建一个组织（Organization），例如这里我创建一个名为 learn-terraform 的组织，一个组织就类似要给命名空间，可以管理多个工作空间（Workspace），还可以管理其下工作空间共享的变量和环境变量。
+接下来我们需要在本地环境登录Terraform Cloud，并添加相应的配置来重新初始化项目。
+重新初始项目 完成了Terraform Cloud的账号注册之后，我们需要在本地终端运行 terraform login ，会打开浏览器来登录账号得到一个Token值，将其复制填入终端完成登录
+&amp;gt; terrafrom login Terraform must now open a web browser to the tokens page for app.terraform.io. If a browser does not open this automatically, open the following URL to proceed: https://app.terraform.io/app/settings/tokens?source=terraform-login --------------------------------------------------------------------------------- Generate a token using your browser, and copy-paste it into this prompt.</description></item></channel></rss>

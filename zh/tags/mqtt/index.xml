@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>mqtt on Mengz's Space ...</title><link>/zh/tags/mqtt/</link><description>Recent content in mqtt on Mengz's Space ...</description><generator>Hugo -- gohugo.io</generator><language>en_US</language><lastBuildDate>Wed, 10 Mar 2021 14:14:54 +0800</lastBuildDate><atom:link href="/zh/tags/mqtt/index.xml" rel="self" type="application/rss+xml"/><item><title>本地环境运行MQTT容器</title><link>/zh/posts/container-tech/docker-mqtt-broker/</link><pubDate>Wed, 10 Mar 2021 14:14:54 +0800</pubDate><guid>/zh/posts/container-tech/docker-mqtt-broker/</guid><description>在我们的本地开发环境（Windows, Mac or Linux），我们可以很容易地使用Docker容器的方式，跑一个MQTT的Broker起来，方便我们的应用开发调试MQTT相关的功能。这里我们以Emqx作为MQTT的Broker来做示例。
+环境准备 首先需要在我们本地的Workstation上安装Docker环境:
+Windows - 如果是Windows 10，推荐使用Docker Desktop或者WSL2，如果是10一下版本，可以使用Docker Toolbox，或者在Windows上跑一个Linux虚拟机，直接在虚拟机里安装Docker Mac - 使用Docker Desktop Linux - 直接安装Docker引擎 如果选择使用Docker Desktop，可以参考 Windows上的Docker Desktop 。
+Docker运行emqx容器 Emqx的开发者已经构建了可用的容器映像，放在Docker Hub上，所以我们这里不需要自己构建映像，而是直接从Docker Hub上拉取
+$ docker image pull emqx/emqx:v4.0.5 如果是在Windows上使用Docker Desktop，则上面的命令是在PowerShell里执行。
+使用如下的命令直接启动一个emqx的容器
+$ docker image container run --name dev_emqx -d -p 18083:18083 -p 1883:1883 emqx/emqx:v4.0.5 启动成功后，我们可以使用命令查看运行情况
+$ docker container ls docker container ls CONTAINER ID NAMES IMAGE CREATED ago STATUS PORTS COMMAND 7c93940c07a3 dev_emqx emqx/emqx:v4.0.5 39 minutes ago ago Up 39 minutes 4369/tcp, 5369/tcp, 6369/tcp, 8080/tcp, 8083-8084/tcp, 8883/tcp, 0.</description></item></channel></rss>

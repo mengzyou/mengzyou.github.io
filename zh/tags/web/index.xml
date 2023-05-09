@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>web on Mengz's Space ...</title><link>/zh/tags/web/</link><description>Recent content in web on Mengz's Space ...</description><generator>Hugo -- gohugo.io</generator><language>en_US</language><lastBuildDate>Sun, 20 Nov 2022 15:24:22 +0800</lastBuildDate><atom:link href="/zh/tags/web/index.xml" rel="self" type="application/rss+xml"/><item><title>最小化静态WEB容器实践</title><link>/zh/posts/container-tech/smallest-web-container/</link><pubDate>Sun, 20 Nov 2022 15:24:22 +0800</pubDate><guid>/zh/posts/container-tech/smallest-web-container/</guid><description>在现代的B/S架构应用中，我们会做前后端分离，某些前端Web服务会将编译完成的静态文件放到一个web服务器进行部署。例如，我的博客也是基于Hugo编译的静态文件来进行部署的。
+那在容器化部署模式下，我们需要基于一个web服务的基础容器（镜像）将静态文件构建成站点或者Web服务的容器镜像来进行部署。在Docker开发最佳实践中，我们应该尽量保持镜像足够小（Size大小）。因此，我们应该尽量选择满足我们需求的web服务基础镜像足够小。
+大部分情况下，我们会选择Nginx作为我们的web服务器，一开始我也是这么选择的，因为社区在Docker Hub上为我们提供了开箱即用的容器镜像，下面来看看我用来构建静态web服务的过程。
+Nginx On Alpine 我们知道在容器构建的实践中，我们可以选择基于AlpineLinux为分发系统的镜像，其比其他（例如 ubuntu, centos等）的镜像会小很多。因此一开始我们也是选择基于Alpine的nginx镜像，例如 nginx:1.22-alpine。
+$ docker image pull nginx:1.22-alpine $ docker image ls | grep nginx nginx 1.22-alpine 23.5MB 可以看到其大小为 23.5MB 。
+基于该惊醒构建我的博客的发布镜像
+FROM mengzyou/hugo:0.106 AS builder COPY --chown=hugo:hugo . /home/hugo/app RUN hugo FROM nginx:1.22-alpine COPY --from=builder /home/hugo/app/public/ /usr/share/nginx/html $ docker build -t myblog:nginx . $ docker image ls --format &amp;#34;{{.Repository}}\t{{.Tag}}\t{{.Size}}&amp;#34; | grep myblog myblog nginx 29MB 构建出来而最终交付镜像的大小为 29MB 。
+Easyhttpd On Alpine 后来，我发现了一个用GoLang编写的轻量级web服务器 - easyhttpd，于是我Fork了该项目，编写了一个Dockerfile来构建该web服务器的镜像，具体可查看该文件内容。</description></item></channel></rss>

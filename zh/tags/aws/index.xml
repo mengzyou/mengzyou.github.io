@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>aws on Mengz's Space ...</title><link>/zh/tags/aws/</link><description>Recent content in aws on Mengz's Space ...</description><generator>Hugo -- gohugo.io</generator><language>en_US</language><lastBuildDate>Tue, 23 Nov 2021 13:42:41 +0800</lastBuildDate><atom:link href="/zh/tags/aws/index.xml" rel="self" type="application/rss+xml"/><item><title>TF管理AWS LIGHTSAIL实例</title><link>/zh/posts/devops/tf-aws-lightsail/</link><pubDate>Tue, 23 Nov 2021 13:42:41 +0800</pubDate><guid>/zh/posts/devops/tf-aws-lightsail/</guid><description>Terraform是一种开源基础设施及代码（IaC）的工具，可提供一致的CLI（命令行接口)工作流来管理数百个云服务，将云API编码为声明性的配置文件进行管理。
+本文创建一个管理AWS Lightsail实例的例子来入门Terraform的使用。
+安装Terraform CLI 要使用Terramform，首先要在本地系统安装Terraform命令行工具。HashiCorp提供了预编译好的二进制分发包，可以通过(https://www.terraform.com/downolads.html) 直接下载相应平台的二进制包，解压后放到相应的执行路径。也可以通过一些软件包管理工具安装，例如在Linux/OS X上通过LinuxBrew/HomeBrew进行安装，在Windows上通过Chocolatey进行安装。
+这里我们示例在Linux上是使用LinuxBrew进行安装
+&amp;gt; brew install terraform 安装完成后，可以查看其版本
+❯ terraform -version Terraform v1.0.11 on linux_amd64 使用-help查看其可用命令，安装成功后，我们就可以使用Terraform来创建相应的基础设施项目了。
+AWS账号准备 本文将通过创建一个管理AWS Lightsial实例的项目来尝试Terraform，因此需要一个AWS账号，以及在本地环境安装和配置好AWS CLI工具的访问凭据。
+安装和配置AWS CLI，请参考其文档 (https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) 。 配置完成之后，可以在本地命令行终端访问相应的AWS资源。
+创建并初始化Terraform项目 Terraform在本地通过文件夹来管理一个基础设施项目的声明性代码，例如我们在本地创建一个文件夹
+&amp;gt; mkdir mylightsail &amp;gt; cd mylightsail/ 进入文件夹后，创建一个以 .tf 作为后缀的文件，例如 main.tf
+&amp;gt; touch main.tf 然后使用编辑器打开文件进行编辑，写入以下代码块
+terraform { required_providers { aws = { source = &amp;#34;hashicorp/aws&amp;#34; version = &amp;#34;~&amp;gt; 3.65&amp;#34; } } } # Configure the AWS Provider provider &amp;#34;aws&amp;#34; { region = &amp;#34;ap-southeast-1&amp;#34; } 其中 terraform/required_providers 块定义了该项目需要的 Provider，Terraform是通过不同的Provider来管理相应的基础设施资源的，可到 (https://registry.</description></item></channel></rss>

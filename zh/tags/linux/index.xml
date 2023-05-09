@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>linux on Mengz's Space ...</title><link>/zh/tags/linux/</link><description>Recent content in linux on Mengz's Space ...</description><generator>Hugo -- gohugo.io</generator><language>en_US</language><lastBuildDate>Fri, 03 Dec 2021 09:28:38 +0800</lastBuildDate><atom:link href="/zh/tags/linux/index.xml" rel="self" type="application/rss+xml"/><item><title>文件系统查找工具</title><link>/zh/posts/opentool/find-files/</link><pubDate>Fri, 03 Dec 2021 09:28:38 +0800</pubDate><guid>/zh/posts/opentool/find-files/</guid><description>众所周知，在Linux或者类Unix的文件系统中，想通过文件名关键字查找文件，可以通过find命令。那本文将推荐2款可以快速查找文件的工具，性能比find命令更好，可在某些场景下替换find的使用。
+mlocate 大部分的Linux发行版的都提供了 mlocate 软件包，该软件包包含了一个locate命令用于查找文件，和一个updatedb命令用于更新文件索引供locate使用。
+可直接通过系统的软件包管理工具直接安装
+# CentOS/RHEL $ sudo dnf install mlocate # Debian/Ubuntu $ sudo apt install mlocate 安装完成后，首先需要执行以下命令进行文件索引
+sudo updatedb 索引文件将默认存放在 /var/lib/mlocate/mlocatedb ，也可以修改配置文件 /etc/updatedb.conf 文件，添加某些不需要索引的文件夹，例如
+# Paths which are pruned from updatedb database PRUNEPATHS=&amp;#34;/tmp /var/tmp /var/cache /var/lock /var/run /var/spool /mnt /cdrom /usr/tmp /proc /media /sys /.snapshots /var/run/media&amp;#34; 完成索引之后，就可以使用 locate 命令进行文件查找了，例如
+$ locate mlocate /etc/systemd/system/timers.target.wants/mlocate.timer /usr/bin/rpmlocate /usr/lib/systemd/system/mlocate.service /usr/lib/systemd/system/mlocate.timer /usr/sbin/rcmlocate /usr/share/doc/packages/mlocate /usr/share/doc/packages/mlocate/AUTHORS /usr/share/doc/packages/mlocate/ChangeLog /usr/share/doc/packages/mlocate/NEWS /usr/share/doc/packages/mlocate/README /usr/share/licenses/mlocate /usr/share/licenses/mlocate/COPYING /usr/share/man/man5/mlocate.db.5.gz /var/lib/mlocate /var/lib/mlocate/mlocate.</description></item><item><title>LINUX上统计网络接口数据包</title><link>/zh/posts/linux/network-packets/</link><pubDate>Wed, 02 Dec 2020 15:15:03 +0800</pubDate><guid>/zh/posts/linux/network-packets/</guid><description>在Linux系统上，我们可以通过 ip , netstat 或者 [ethtool] 命令显示网络接口丢弃数据包的统计信息。接下来我们看看如何使用每个命令。
+使用netstat按接口显示数据包 其实 netstat 命令已经过时，可使用命令 ip 和 ss 来代替。但是 netstat 依然在一些旧的Linux分发版本上可用，因此在 ip/ss 不可用的情况，我们可以使用netstat，其语法如下
+netstat -i netstat --interfaces 例如
+~$ netstat -i Kernel Interface table Iface MTU Met RX-OK RX-ERR RX-DRP RX-OVR TX-OK TX-ERR TX-DRP TX-OVR Flg docker0 1500 0 188180 0 0 0 151852 0 0 0 BMRU eth0 1500 0 472368 0 0 0 375351 0 0 0 BMRU lo 65536 0 51687 0 0 0 51687 0 0 0 LRU vethc8f46ea 1500 0 136984 0 0 0 79587 0 0 0 BMRU 如果想显示每种协议的概要统计信息，可以执行</description></item><item><title>RCLOUD与云存储同步</title><link>/zh/posts/opentool/rclone-sync/</link><pubDate>Fri, 30 Aug 2019 12:19:04 +0800</pubDate><guid>/zh/posts/opentool/rclone-sync/</guid><description>Rclone是一个命令行云存储同步工具，可以在文件系统和云存储服务之间或者多个云存储服务之间访问和同步文件，支持很多云存储服务后端。
+Rclone支持的云存储服务 rclone的当前版本为v1.49.1，支持以下云存储服务：
+1Fichier Alibaba Cloud (Aliyun) Object Storage System (OSS) Amazon Drive (See note) Amazon S3 Backblaze B2 Box Ceph C14 DigitalOcean Spaces Dreamhost Dropbox FTP Google Cloud Storage Google Drive Google Photos HTTP Hubic Jottacloud IBM COS S3 Koofr Memset Memstore Mega Microsoft Azure Blob Storage Microsoft OneDrive Minio Nextcloud OVH OpenDrive Openstack Swift Oracle Cloud Storage ownCloud pCloud premiumize.me put.io QingStor Rackspace Cloud Files rsync.net Scaleway SFTP Wasabi WebDAV Yandex Disk The local filesystem 当前对于Google Photos的支持有一定的限制，具体请看文档。</description></item><item><title>LINUX上创建不可删除文件</title><link>/zh/posts/linux/make-undeletable/</link><pubDate>Sat, 24 Aug 2019 15:00:04 +0800</pubDate><guid>/zh/posts/linux/make-undeletable/</guid><description>我们都知道在Linux上默认都会有一个名为root的超级用户，该用户可以修改系统上的任何文件和目录，那我们怎么创建一些不能被删除/修改的文件和目录呢？
+那在Linux系统中有一个命令chattr可以用来修改文件和目录的属性，通过该命令就可以设置文件和目录不可删除，甚至包括root也不能操作。
+创建不可删除的文件 例如，我们在系统上新建一个名为undeletable-file的文件，通过名了chattr设置其属性为不可修改的：
+❯ echo &amp;#34;some contents&amp;#34; ❯ ~/undeletable-file ❯ sudo chattr +i -V ~/undeletable-file chattr 1.43.8 (1-Jan-2018) Flags of /home/mengz/undeletable-file set as ----i-------------- ❯ rm -f ~/undeletable-file rm: cannot remove &amp;#39;undeletable-file&amp;#39;: Operation not permitted ❯ sudo rm -f ~/undeletable-file rm: cannot remove &amp;#39;undeletable-file&amp;#39;: Operation not permitted ❯ echo &amp;#34;change&amp;#34; ❯❯ ~/undeletable-file bash: undeletable-file: Operation not permitted 注意 ： 是用命令chattr修改属性的时候需要root权限，因此这里使用了sudo 。
+我们也可以通过命令lsattr来查看当前文件的属性：
+❯ lsattr ~/undeletable-file ----i-------------- /home/mengz/undeletable-file 设置目录不可修改 针对目录，同样是用命令chattr，是用-R选项可以递归地修改目录和其文件的属性：</description></item><item><title>BUMBLEBEE禁用NVIDIA显卡</title><link>/zh/posts/linux/bumlebee-nvidia/</link><pubDate>Wed, 25 Nov 2015 01:13:00 +0800</pubDate><guid>/zh/posts/linux/bumlebee-nvidia/</guid><description>如今有很多笔记本电脑都配备了双显卡，一块集成的 Intel 显卡，一块性能更好一些的 NVIDIA 显卡。
+可是在平时的使用中可能根本用不上 NVIDIA 的那块显卡，那么为了使这样的笔记本电脑更省电，那么在平时的使用中可以禁用 NVIDIA 的显卡，而只使用集成的显卡。 Bumblebee 就是一个开源项目，在 Linux 上实现了 NVIDIA 的 Optimus 技术，在需要的时候使用 NVIDIA 的显卡。
+我的电脑是 Lenovo ThinkPad T440s ，配备了如下的两块显卡：
+1. 00:02.0 VGA compatible controller: Intel Corporation Haswell-ULT Integrated Graphics Controller (rev 09) 2. VGA compatible controller: NVIDIA Corporation GK208M [GeForce GT 730M] (rev ff) 而我使用的系统是 openSUSE Leap 42.1，下面就看看如何在该系统上禁用 NVIDIA 的显卡。
+安装所需的软件包 首先添加如下安装源：
+sudo zypper ar -r http://download.opensuse.org/repositories/X11:/Bumblebee/openSUSE_Leap_42.1/X11:Bumblebee.repo
+刷新后，安装如下软件包：
+bumblebee nvidia-bumblebee bbswitch bbswitch-kmp-default
+如果你是64位系统，还请安装
+nvidia-bumblebee-32bit</description></item><item><title>SYSTEMCTL管理系统服务</title><link>/zh/posts/linux/systemd-systemctl/</link><pubDate>Thu, 29 Jan 2015 18:46:00 +0800</pubDate><guid>/zh/posts/linux/systemd-systemctl/</guid><description>这是我在使用openSuSE过程中学习和使用systemd来管理系统的一些笔记。 首先那就让我们来先看看什么是systemd：
+Systemd Systemd是Linux下的一个程序，用来初始化系统。像SysV一样，其将会被Linux内核启动。 在opneSuSE上，systemd将会是系统进程号为1的进程，其负责初始化系统和启动系统服务。
+openSuSE从12.3版本开始，用systemd作为默认的系统初始化程序代替了SysV。 想了解systemd和SysV的对于，可以参看这里。
+用sytemctl进行系统管理 systemd提供了systemctl命令来进行系统服务管理，其调用格式如下：
+systemctl [通用选项] 子命令 [子命令选项]
+在系统上管理服务 像SysV一样，通过子命令start|stop|restart等来管理服务：
+systemctl start|stop|status|restart|reload|&amp;hellip; &amp;lt;服务名&amp;gt;.service
+如查看当前cron服务的状态：
+# systemctl status cron.service cron.service - Command Scheduler Loaded: loaded (/usr/lib/systemd/system/cron.service; enabled) Active: active (running) since Mon 2015-01-26 15:50:21 CST; 3 days ago Main PID: 1247 (cron) CGroup: /system.slice/cron.service └─1247 /usr/sbin/cron -n
+systemctl支持一次操作多个服务，只要在子命令后添加多个服务名即可。
+使用enable|disable来设置开启自动启动或者不启动一个服务：
+systemctl enable|disable &amp;lt;服务名&amp;gt;.service
+Systemd的启动目标 在SysV的启动系统上，用启动级别（runlevel）来表示系统的启动状态，已经哪些服务伴随这级别一起启动。 如 0 （关闭系统），3 （多用户带网络），5 （多用户带网络，显示图形用户界面）。
+而在Systemd上，用目标（target）表示这个概念，如 graphical.target 提供了多用户带网，显示图像用户界面的启动目标，就相当与level 5。 systemd提供了很多内置的目标单元，可以用下面的命令查看：
+# systemctl list-unit-files &amp;ndash;type=target</description></item><item><title>查看硬件信息</title><link>/zh/posts/linux/what-hardware/</link><pubDate>Fri, 19 Nov 2010 21:33:20 +0800</pubDate><guid>/zh/posts/linux/what-hardware/</guid><description>通常，你也许不需要知道你使用了什么样的硬件 — 你也许拥有的是一台来自比较小一点公司的组装机或者一台二手机。本月，我将介绍你可以用来查看你安装的硬件的工具。 第一步，使用lshw — 列举硬件工具。如果你使用普通用户执行，它会警告你需要使用root执行。因此，以sudo lshw执行。你将可以看到屏幕上显示你系统的信息。第一段将是常规信息，看起来就像下面这样：
+jbernard-eeepc
+description: Notebook
+product: 700
+vendor: ASUSTeK Computer INC.
+version: 0129
+serial: EeePC-1234567890
+width: 32 bits
+capabilities: smbios-2.5 dmi-2.5 smp-1.4 smp
+configuration: boot=normal chassis=notebook
+cpus=1 uuid=XXXXXX-XXXXX-XXXXX-XXXXX
+这是我在我的ASUS EeePC执行的结果。你可以看到生产商是ASUSTeK, BIOS的版本是0129， 以及这是一台32位的单一CPU机器。更多的信息以下面的分类来说明：
+core
+firmware - motherboard and BIOS information
+cpu - CPU information
+cache - cache information
+memory - memory information
+bank - specific bank memory information
+pci - PCI bus information
+display - PCI display adapter</description></item></channel></rss>

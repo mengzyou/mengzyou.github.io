@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>zypper on Mengz's Space ...</title><link>/zh/tags/zypper/</link><description>Recent content in zypper on Mengz's Space ...</description><generator>Hugo -- gohugo.io</generator><language>en_US</language><lastBuildDate>Mon, 27 Apr 2015 08:07:00 +0800</lastBuildDate><atom:link href="/zh/tags/zypper/index.xml" rel="self" type="application/rss+xml"/><item><title>OPENSUSE上的ZYPPER包管理器</title><link>/zh/posts/linux/opensuse-zypper/</link><pubDate>Mon, 27 Apr 2015 08:07:00 +0800</pubDate><guid>/zh/posts/linux/opensuse-zypper/</guid><description>自己在使用 opensuse，自己非常喜欢 opensuse 的包管理命令行工具 zypper。这里做一个笔记，也希望能看到这个篇文章的朋友能够快速地掌握 zypper 的用法。
+CentOS 和 Redhat 使用的是 yum 作为命令行的软件包管理工具。
+Debian 和 Ubuntu 使用的是 apt-get。
+在 Debian/Ubuntu 上还有另一个软件包管理工具 - aptitude 。
+同样，在 SUSE/opensuse Linux 上，zypper 就是其命令行的软件包管理工具。
+从高层次的角度，你可以使用 zypper 命令管理两种不同的东西：
+管理软件包： 使用 zypper 来安装，删除，更新以及查询本地的或者远端媒体上的软件包。 管理软件源： 也可以使用 zypper 管理软件源信息，你可以在命令行添加，删除，打开或者关闭某个软件源。它还可以设置在安装过程中软件源的优先级。 I. 使用 zypper 管理软件包 1. 安装软件包 使用如下语法安装一个软件包：
+zypper install &amp;lt;package name&amp;gt;
+如，执行一下命令来安装 火狐浏览器 和它的依赖：
+# zypper install MozillaFirefox Loading repository data... Reading installed packages... Resolving package dependencies... The following NEW packages are going to be installed: MozillaFirefox MozillaFirefox-branding-SLED The following packages are not supported by their vendor: MozillaFirefox MozillaFirefox-branding-SLED 2 new packages to install.</description></item></channel></rss>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Container on Mengz's Space ...</title><link>/zh/categories/container/</link><description>Recent content in Container on Mengz's Space ...</description><generator>Hugo -- gohugo.io</generator><language>en_US</language><lastBuildDate>Sun, 20 Nov 2022 15:24:22 +0800</lastBuildDate><atom:link href="/zh/categories/container/index.xml" rel="self" type="application/rss+xml"/><item><title>最小化静态WEB容器实践</title><link>/zh/posts/container-tech/smallest-web-container/</link><pubDate>Sun, 20 Nov 2022 15:24:22 +0800</pubDate><guid>/zh/posts/container-tech/smallest-web-container/</guid><description>在现代的B/S架构应用中，我们会做前后端分离，某些前端Web服务会将编译完成的静态文件放到一个web服务器进行部署。例如，我的博客也是基于Hugo编译的静态文件来进行部署的。
+那在容器化部署模式下，我们需要基于一个web服务的基础容器（镜像）将静态文件构建成站点或者Web服务的容器镜像来进行部署。在Docker开发最佳实践中，我们应该尽量保持镜像足够小（Size大小）。因此，我们应该尽量选择满足我们需求的web服务基础镜像足够小。
+大部分情况下，我们会选择Nginx作为我们的web服务器，一开始我也是这么选择的，因为社区在Docker Hub上为我们提供了开箱即用的容器镜像，下面来看看我用来构建静态web服务的过程。
+Nginx On Alpine 我们知道在容器构建的实践中，我们可以选择基于AlpineLinux为分发系统的镜像，其比其他（例如 ubuntu, centos等）的镜像会小很多。因此一开始我们也是选择基于Alpine的nginx镜像，例如 nginx:1.22-alpine。
+$ docker image pull nginx:1.22-alpine $ docker image ls | grep nginx nginx 1.22-alpine 23.5MB 可以看到其大小为 23.5MB 。
+基于该惊醒构建我的博客的发布镜像
+FROM mengzyou/hugo:0.106 AS builder COPY --chown=hugo:hugo . /home/hugo/app RUN hugo FROM nginx:1.22-alpine COPY --from=builder /home/hugo/app/public/ /usr/share/nginx/html $ docker build -t myblog:nginx . $ docker image ls --format &amp;#34;{{.Repository}}\t{{.Tag}}\t{{.Size}}&amp;#34; | grep myblog myblog nginx 29MB 构建出来而最终交付镜像的大小为 29MB 。
+Easyhttpd On Alpine 后来，我发现了一个用GoLang编写的轻量级web服务器 - easyhttpd，于是我Fork了该项目，编写了一个Dockerfile来构建该web服务器的镜像，具体可查看该文件内容。</description></item><item><title>开始使用DOCKER COMPOSE V2</title><link>/zh/posts/container-tech/docker-compose-v2/</link><pubDate>Thu, 02 Jun 2022 18:53:16 +0800</pubDate><guid>/zh/posts/container-tech/docker-compose-v2/</guid><description>Compose V2 项目启动于2021年6月，直到2022年4月26号，发布了GA版本。在发布GA版本后，社区也宣布对于Compose V1将不会再进行功能更新，将在6个月后结束生命周期（EOL），期间会进行关键的安全和错误修复。
+V1与V2的兼容对比 确保 V1 和 V2 之间的兼容性对于日常工作流程至关重要，下面是V2中两个关键的更改
+更改 潜在影响 迁移 V2原生支持BuildKit，并且默认开启 开发者在V2中将默认使用BuildKit进行镜像构建 可通过设置环境变量不使用 DOCKER_BUILDKIT=0 容器名字中使用 - 替代了 _ 作为分隔符 如果在脚本中使用了容器名字，这可能会导致错误 可以通过 &amp;ldquo;&amp;ndash;compatibility&amp;rdquo; 标记来关闭此更改 关于更多的兼容性更改，请查看兼容性文档
+如何安装Compose V2 Windows，MacOS和Linux上使用Docker Desktop，就自带了Compose V2，可通过命令 docker compose 执行。也可以通过配置“Use Docker Compose V2“来设置 docker-compose 别名到 docker compose。
+如果没有使用Docker Desktop for Linux，而是直接使用的Docker Engine，则需要额外安装 docker-compose-plugin 或者独立的二进制包。
+例如对于Ubuntu,可以通过Docker官方的APT源直接安装
+❯ sudo apt update ❯ sudo apt install docker-compose-plugin 其他Linux, 例如在我的 openSUSE 上，通过手动从Github下载二进制文件进行安装（注意选择版本和平台架构）
+❯ DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker} ❯ mkdir -p $DOCKER_CONFIG/cli-plugins ❯ wget https://github.</description></item><item><title>DOCKER SBOM镜像物料清单</title><link>/zh/posts/container-tech/docker-sbom/</link><pubDate>Mon, 09 May 2022 12:58:16 +0800</pubDate><guid>/zh/posts/container-tech/docker-sbom/</guid><description>在上个月发布的Docker Desktop v4.7.0中，增加了一个新的CLI插件-docker/sbom-cli-plugin，其为Docker CLI增加了一个子命令 - sbom，用于查看Docker容器镜像的软件物料清单（SBOM)。
+什么是SBOM？ 首先介绍下什么是SBOM（Software Bill of Materials），我们称之为软件物料清单，是软件供应链中的术语。软件供应链是用于构建软件应用程序（软件产品）的组件、库和工具的列表，而物料清单则声明这些组件、库的清单，类似于食品的配料清单。软件物料清单可以帮助组织或者个人避免使用有安全漏洞的软件。
+DOCKER SBOM命令 注意: 从Docker Desktop 4.7.0版本开始到现在，docker sbom 命令还是实验性的，该功能也许会在以后版本中删除和更改，当前Linux的Docker CLI还未包含该子命令。
+docker sbom 命令用于生产一个容器镜像的软件物料清单（SBOM）
+WSL - mengz  docker sbom --help Usage: docker sbom [OPTIONS] COMMAND View the packaged-based Software Bill Of Materials (SBOM) for an image. EXPERIMENTAL: The flags and outputs of this command may change. Leave feedback on https://github.com/docker/sbom-cli-plugin. Examples: docker sbom alpine:latest a summary of discovered packages docker sbom alpine:latest --format syft-json show all possible cataloging details docker sbom alpine:latest --output sbom.</description></item><item><title>管理远程DOCKER主机</title><link>/zh/posts/container-tech/docker-context-remote/</link><pubDate>Sun, 08 May 2022 09:05:27 +0800</pubDate><guid>/zh/posts/container-tech/docker-context-remote/</guid><description>在Docker v19.03版本之前，我们可以使用DOCKER_HOST环境变量来配置和连接远程Docker主机，自从Docker v19.03版本开始，Docker的命令行接口（CLI）增加了一个子命令 - context，用于管理docker客户端连接多个上下文环境。
+通过context命令，可通过配置SSH协议的上下文连接并管理远程多个Docker主机，同时从一台安装了Docker CLI的机器导出上下文环境，并在另一台安装了Docker CLI的机器导入。
+context子命令 首先可以通过&amp;ndash;help选项查看命令支持的子命令：
+ docker context --help Usage: docker context COMMAND Manage contexts Commands: create Create a context export Export a context to a tar or kubeconfig file import Import a context from a tar or zip file inspect Display detailed information on one or more contexts ls List contexts rm Remove one or more contexts update Update a context use Set the current docker context Run &amp;#39;docker context COMMAND --help&amp;#39; for more information on a command.</description></item><item><title>DOCKER LIVERESTORE特性</title><link>/zh/posts/container-tech/docker-live-restore/</link><pubDate>Sun, 19 Dec 2021 11:59:17 +0800</pubDate><guid>/zh/posts/container-tech/docker-live-restore/</guid><description>我们都知道Docker是C/S模式架构，通过客户端（CLI）访问Docker Daemon来创建和管理容器的。在默认情况下，当daemon终止的时候，会停止所有运行的容器。
+因此我们需要对Docker Daemon进行升级或者某些需要重启的维护操作时，都需要导致运行着的容器跟着重新启动。
+Live Restore 其实，Docker提供了一个特性，可以使得在Daemon不可用的时候，保持容器继续运行，这样就减少了在Daemon进行升级或者出现问题的时候容器的停机时间。那这个特性就叫做Live Restore 。
+通过为Docker Daemon增加以下配置来开启Live Restore特性。在Linux上，默认的配置文件 /etc/docker/daemon.json 里添加
+{ &amp;#34;live-restore&amp;#34;: true } 然后重启docker服务。如果使用systemd管理服务，可以通过reload来避免重启docker服务
+sudo systemctl reload docker.service 其他情况下，可以发送 SIGHUP 信号给dockerd进程。
+对于Windows和MacOS上的Docker Desktop，可以通过Desktop节目的Daemon高级配置来开启Live Restore。
+配置完成后，可以尝试重启Docker Daemon来查看容器是否会保持继续运行。重启之前查看容器的启动时间
+ WSL -   mengz  docker container inspect portainer_edge_agent -f &amp;#39;{{ .State.StartedAt }}&amp;#39; 2021-12-18T09:50:59.761725785Z 然后执行 sudo systemctl restart docker.service，在查询一次容器的启动时间，将发现启动时间未发生变化，这说明了容器并没有重启。
+Live Restore的限制 当前的Live Restore特性可以在进行Daemon维护，或者在Daemon发生问题导致不可用的情况，减少容器的停机时间，不过其也有一定的限制。
+Docker版本升级限制 Live Restore仅支持Docker补丁版本升级时可用，也就是 YY.MM.x 最后一位发生变化的升级，而不支持大版本的升级。在进行大版本升级后，可能会导致Daemon无法重新连接到运行中容器的问题，这时候需要手动停止运行的容器。
+Daemon选项变更 也就是说Live Restore仅仅在某些Daemon级别的配置选项不发生改变的情况工作，例如Bridge的IP地址，存储驱动类型等。如果在重启Daemon时候，这些选项发生了改变，则可能会到Daemon无法重新连接运行中的容器，这时也需要手动停止这些容器。
+影响容器的日志输出 如果Daemon长时间停止，会影响运行容器的日志输出。因为默认情况下，日志管道的缓冲区大小为64k，当缓冲写满之后，必须启动Daemon来刷新缓冲区。
+不支持Docker Swarm Live Restore只是独立Docker引擎的特性，而Swarm的服务是由Swarm管理器管理的。当Swarm管理器不可用时，Swarm服务是可以在工作节点上继续运行的，只是不同通过Swarm管理器进行管理，直到Swarm管理恢复工作。</description></item><item><title>本地环境运行MQTT容器</title><link>/zh/posts/container-tech/docker-mqtt-broker/</link><pubDate>Wed, 10 Mar 2021 14:14:54 +0800</pubDate><guid>/zh/posts/container-tech/docker-mqtt-broker/</guid><description>在我们的本地开发环境（Windows, Mac or Linux），我们可以很容易地使用Docker容器的方式，跑一个MQTT的Broker起来，方便我们的应用开发调试MQTT相关的功能。这里我们以Emqx作为MQTT的Broker来做示例。
+环境准备 首先需要在我们本地的Workstation上安装Docker环境:
+Windows - 如果是Windows 10，推荐使用Docker Desktop或者WSL2，如果是10一下版本，可以使用Docker Toolbox，或者在Windows上跑一个Linux虚拟机，直接在虚拟机里安装Docker Mac - 使用Docker Desktop Linux - 直接安装Docker引擎 如果选择使用Docker Desktop，可以参考 Windows上的Docker Desktop 。
+Docker运行emqx容器 Emqx的开发者已经构建了可用的容器映像，放在Docker Hub上，所以我们这里不需要自己构建映像，而是直接从Docker Hub上拉取
+$ docker image pull emqx/emqx:v4.0.5 如果是在Windows上使用Docker Desktop，则上面的命令是在PowerShell里执行。
+使用如下的命令直接启动一个emqx的容器
+$ docker image container run --name dev_emqx -d -p 18083:18083 -p 1883:1883 emqx/emqx:v4.0.5 启动成功后，我们可以使用命令查看运行情况
+$ docker container ls docker container ls CONTAINER ID NAMES IMAGE CREATED ago STATUS PORTS COMMAND 7c93940c07a3 dev_emqx emqx/emqx:v4.0.5 39 minutes ago ago Up 39 minutes 4369/tcp, 5369/tcp, 6369/tcp, 8080/tcp, 8083-8084/tcp, 8883/tcp, 0.</description></item><item><title>DOCKERFILE构建最佳实践</title><link>/zh/posts/container-tech/dockerfile-best/</link><pubDate>Wed, 15 Jul 2020 16:36:58 +0800</pubDate><guid>/zh/posts/container-tech/dockerfile-best/</guid><description>在进行应用容器化的实践中，我们可以使用多种方式来创建容器镜像，而使用Dockerfile是我们最常用的方式。 而且在实现CI/CD Pipeline的过程中，使用Dockerfile来构建应用容器也是必须的。
+本文不具体介绍Dockerfile的指令和写法，仅仅是在实践中积累的一些写好一个Dockerfile的小提示，体现在一下几个方面：
+减少构建时间 减小镜像大小 镜像可维护性 重复构建一致性 安全性 减小构建时间 首先来看看下面这个Dockerfile
+FROM ubuntu:18.04 COPY . /app RUN apt-get update RUN apt-get -y install ssh vim openjdk-8-jdk CMD [“java”,”-jar”,”/app/target/app.jar”] 要减小构建的时间，那我们可以例如Docker构建的缓存特性，尽量保留不经常改变的层，而在Dockerfile的指令中， COPY和RUN都会产生新的层，而且缓存的有效是与命令的顺序有关系的。
+在上面的Dockerfile中，COPY . /app在RUN apt-get ...之前，而COPY是经常改变的部分，所以每次构建都会到导致RUN apt-get ...缓存失效。
+Tip-1 : 合理利用缓存，而执行命令的顺序是会影响缓存的可用性的。
+要减小构建时间，另一方面是应该仅仅COPY需要的东西，对于上面这个Dockerfile的目的，应该仅仅需要COPY Java应用的jar文件。
+Tip-2 : 构建过程中仅仅COPY需要的东西。
+上面的Dockerfile对apt-get命令分别使用了两个RUN指令，会生成两个不同的层。
+Tip-3 : 尽量合并最终镜像的层数。
+还有对于这个示例，我们最终是想要一个JRE环境来运行Java应用，因此可以选择一个jre的镜像来作为基础镜像，这样不用花时间再去安装jdk。
+Tip-4 : 选择合适的基础镜像
+这样我们可以把Dockerfile写成：
+FROM ubuntu:18.04 RUN apt-get update \ &amp;amp;&amp;amp; apt-get y install ssh vim openjdk-8-jdk COPY target/app.jar /app CMD [“java”,”-jar”,”/app/app.</description></item><item><title>WINDOWS上的DOCKER DESKTOP</title><link>/zh/posts/container-tech/docker-desktop-windows/</link><pubDate>Wed, 18 Mar 2020 14:31:38 +0800</pubDate><guid>/zh/posts/container-tech/docker-desktop-windows/</guid><description>在本系列的Docker入门中，我们介绍了容器的基本概念，以及如何在Ubuntu（Linux）上安装Docker引擎来进行容器化引用的开发。
+本篇我们介绍如何在Windows系统上安装和使用Docker，这里主要介绍在Windows 10上安装和使用Docker Desktop，对于Windows 10以下的版本，可以使用Docker Toolbox，这里就不做介绍了．
+安装Docker Desktop Docker Desktop　- The fastest way to containerize applications on your desktop，　这是Docker官方的定义，Docker Desktop为Windows和Mac提供了一个桌面化的容器开发环境，在Windows 10上，Docker Desktop使用了Windows的Hyper-V虚拟化技术，因此你需要一台打开了硬件虚化化的电脑并且安装的是Windows 10专业版以上的系统，还需要打开Hyper-V功能，如何在Windows 10上打开Hyper-V，参考这里．
+补充　：　Docker Desktop支持Windows 10 64位: 专业版，企业版，教育版 (Build 15063 或以上).
+首先在满足条件的Windows系统上下载Docker Desktop的安装包 - https://hub.docker.com/editions/community/docker-ce-desktop-windows　．安装过程是简单的，直接双击下载的安装，更具提示安装就好了，一开始我们选择使用Linux容器（之后可以其他换到使用Windows容器的方式，会单独写一篇来介绍使用Windows容器）．安装过程中安装程序会检查系统是否满足，如果不满足，安装程序会报错并结束安装．
+安装完成之后，打开 开始 菜单，然后选择 Docker Desktop 启动．
+查看状态栏上的Docker图标，一开始会显示 starting 装，等到显示Docker Desktop is running，就可以通过终端（例如 PowerSheel）来使用Docker的相关命令了，下面我们将使用Windows 10的PowerShell作为终端来进行操作．
+构建和运行容器 我们将使用一个简单Node应用来示例如何在Windows上构建容器镜像和启动一个容器．首先我们需要将代码库下载到我们的环境中，这里可以使用Git来克隆代码库或者直接下载代码包．
+在Windows上，可以使用Git for Windows，也可以使用Windows 10的WSL安装一个Ubuntu子系统，然后在Ubuntu子系统终端里安装Git，并直接使用Git克隆代码，这里我使用的是在Ubuntu子系统终端里克隆代码库到本地目录．
+如上图所示，我们把代码克隆到了D:\gitrepos\hellonode\目录，然后切换到PowerShell终端，进入该目录.　用你喜欢的文本编辑器打开hellonode\Dockerfile（推荐时候用VS Code，内容如下
+FROM node:12.2-alpine MAINTAINER Mengz You &amp;lt;mengz.you@outlook.com&amp;gt; WORKDIR /app COPY package*.</description></item><item><title>DOCKER运行微信桌面客户端</title><link>/zh/posts/container-tech/docker-wechat/</link><pubDate>Tue, 25 Feb 2020 13:36:58 +0800</pubDate><guid>/zh/posts/container-tech/docker-wechat/</guid><description>今天借助Github用户huan的盒装微信项目，在我的openSUSE Leap系统上使用Docker成功地运行封装的Windows上的微信客户端。
+安装Docker 在Linux系统上安装Docker引擎是很容器的，请参考Docker入门，如果你也使用的是openSUSE Leap，执行如下命令安装Docker引擎:
+$ sudo zypper ref $ sudo zypper in docker 启动微信客户端 注意： 在启动之前，需要设置主机系统的X服务的访问控制，使用如下的命令禁用主机上X服务的访问控制，允许所有客户端链接服务：
+$ xhost + 关于[xhost]的更多信息，可参考(https://www.computerhope.com/unix/xhost.htm)。
+huan/docker-wechat提供了一个启动脚本dochat.sh来执行容器镜像的下载，以及启动，可直接执行如下操作：
+$ curl -sL https://raw.githubusercontent.com/huan/docker-wechat/master/dochat.sh | bash 当然也可以克隆Git代码库，然后执行dochat.sh脚本。
+成功启动后如下图所示，使用手机扫描登录。
+使用Docker Compose启动 dochat.sh是直接使用了docker run命令启动容器，也可以编写一个compose文件来使用docker-compose管理应用容器。例如我在目录 ~/dockerapp/ 下创建了一个 dochat.yml 文件。
+version: &amp;#39;2.4&amp;#39; services: dochat: image: zixia/wechat container_name: dockerapps_dochat network_mode: bridge devices: - &amp;#34;/dev/video0:/dev/video0&amp;#34; - &amp;#34;/dev/snd:/dev/snd&amp;#34; volumes: - &amp;#34;/etc/localtime:/etc/localtime:ro&amp;#34; - &amp;#34;$HOME/.dochat/appdata:/home/user/.wine/drive_c/user/Application Data/&amp;#34; - &amp;#34;$HOME/.dochat/wechatfiles:/home/user/WeChat Files/&amp;#34; - &amp;#34;/tmp/.X11-unix:/tmp/.X11-unix&amp;#34; environment: - &amp;#34;DISPLAY=unix$DISPLAY&amp;#34; - &amp;#34;XMODIFIERS=@im=fcitx&amp;#34; - &amp;#34;GTK_IM_MODULE=fcitx&amp;#34; - &amp;#34;QT_IM_MODULE=fcitx&amp;#34; - &amp;#34;AUDIO_GID=492&amp;#34; - &amp;#34;VIDEO_GID=484&amp;#34; - &amp;#34;GID=100&amp;#34; - &amp;#34;UID=1000&amp;#34; - &amp;#34;DOCHAT_DEBUG=true&amp;#34; ipc: host privileged: true 首次启动时使用命令docker-compose -f ~/dockerapp/dochat.</description></item><item><title>DOCKER构建容器化应用</title><link>/zh/posts/container-tech/docker-container-app/</link><pubDate>Thu, 13 Feb 2020 17:34:10 +0800</pubDate><guid>/zh/posts/container-tech/docker-container-app/</guid><description>这是Docker快速开始系列的第二篇，在对我们的应用进行容器化之前，请先阅读第一篇安装好Docker环境。
+介绍 我们在开发主机（开发环境）上安装好Docker之后，我们就可以开始发开容器化应用，通常按照以下步骤：
+为应用的每个组件创建Docker镜像，然后通过镜像运行容器并测试． 编写 docker stack 文件或者Kubernetes的 YMAL　文件，将容器和支持的基础设施集装到一个完整应用程序. 测试，分享和部署你的整个容器化的应用程序． 在这个快速的教程里，我们将专注在第一个步骤：创建容器将基于的镜像．
+准备Dockerfile 我们将使用Docker的一个培训项目示例docker-training/node-bulletin-board，按照如下步骤
+从Github克隆示例代码（首先你需要在环境中安装好Git） $ git clone -b v1 https://github.com/docker-training/node-bulletin-board $ cd node-bulletin-board/bulletin-board-app/ 这是一个简单的公告板应用示例代码，使用node.js编写．现在，我们需要容器化该应用．
+在代码目录下，有一个Dockerfile文件，该文件描述了如何为一个容器封装一个私有文件系统，以及包含一些描述如何运行容器的元数据，文件内容如下 FROM node:8.9.4-alpine WORKDIR /usr/src/app COPY package.json . RUN npm install COPY . . CMD [ &amp;#34;npm&amp;#34;, &amp;#34;start&amp;#34; ] 为应用编写Dockerfile是容器化应用的第一步，你可以认为Dockerfile里的命令是构建镜像的一步步指令
+首先从一个已经存在的基础镜像开始，FROM node:8.9.4-alpine，该基础镜像是一个官方的镜像，在开始构建时，如果本地没有该镜像，将会Docker Hub自动拉取该镜像． 然后通过WORKDIR指令设置工作目录，之后的操作都将基于该工作目录． 通过COPY指令，将当前目录下的package.json文件拷贝到容器的当前目录下（/usr/src/app/），也就是/usr/src/app/package.json．　RUN指令是执行相关的命令，示例中在/usr/src/app/目录下执行npm install命令，该命令将根据package.json文件安装应用相关的依赖包． 接着将剩余的代码从主机拷贝到镜像的文件系统中． 最后的CMD命令配置了镜像的元数据，描述使用该镜像运行容器时，如何启动应用程序，这里启动容器时将运行npm start. 以上只是一个简单的Dockerfile示例，更多的指令请参考官方文档.
+构建和测试镜像 现在我们拥有了源代码和Dockerfile，我们可以开始构建应用的镜像了．
+首先确保当前目录是 node-bulletin-board/bulletin-board-app/　，通过如下的命令构建镜像 $ docker image build -t bulletinboard:1.0 . 你将看到Docker按照Dockerfile里的指令进行构建，当构建成功后，可通过如下命令查看到构建出来的镜像
+$ docker image ls bulletinboard 1.</description></item><item><title>DOCKER入门</title><link>/zh/posts/container-tech/docker-intro/</link><pubDate>Thu, 13 Feb 2020 12:40:25 +0800</pubDate><guid>/zh/posts/container-tech/docker-intro/</guid><description>Docker Docker是一个为开发者和运维工程师（系统管理员）以容器的方式构建，分享和运行应用的平台。使用容器进行应用部署的方式，我们成为容器化。
+容器化应用具有一下特性，使得容器化日益流行：
+灵活：　再复杂的应用都可以进行容器化． 轻量：　容器使用使用和共享主机的内核，在系统资源的利用比虚拟机更加高效． 可移植：　容器可以本地构建，部署到云上，运行在任何地方． 松耦合：　容器是高度自封装的，可以在不影响其他容器的情况下替换和升级容器． 可扩展：　可以在整个数据中心里增加和自动分发容器副本． 安全：　容器约束和隔离应用进程，而无需用户进行任何配置． 镜像和容器 其实，容器就是运行的进程，附带一些封装的特性，使其与主机上和其他容器的进程隔离．每个容器都只访问它自己私有的文件系统，这是容器隔离很重要的一方面．而Docker镜像就提供了这个文件系统，一个镜像包含运行该应用所有需求 - 代码或者二进制文件，运行时，依赖库，以及其他需要的文件系统对象．
+通过与虚拟机对比，虚拟机（VM）通过一个虚拟机管理（Hypervisor）运行了完整的操作系统来访问主机资源．通常虚拟机会产生大量的开销，超过了应用本身所需要的开销．
+容器编排 容器化过程的可移植性和可重复性意味着我们有机会跨云和数据中心移动和扩展容器化的应用程序，容器有效地保证应用程序可以在任何地方以相同的方式运行，这使我们可以快速有效地利用所有这些环境．当我们扩展我们的应用，我们需要一些工具来帮助自动维护这些应用，在容器的生命周期里，可以自动替换失败的容器，管理滚动升级，以及重新配置．　容器编排器（Orchestrator）就是管理，扩展和维护容器化应用的工具，当前最常见的例子就是 Kubernetes 和 Docke Swarm ．Docker Desktop 工具可以在开发环境提供这两个编排工具．当前，Docker Desktop 仅支持在Windows和OSX系统上安装，本文接下来主要介绍如何在Linux上安装Docker，以及运行一个容器．
+安装Docker 如果你使用的是Windows或者Mac OS系统，请参考上面的链接安装和使用 Docker Desktop，下面我们将已Ubuntu 18.04系统为例来安装Docker的社区版本（docker-ce）．　配置软件源 更新apt包索引 $ sudo apt update 安装需要的软件包 $ sudo apt install \ apt-transport-https \ ca-certificates \ curl \ gnupg-agent \ software-properties-common 添加Docker官方的GPG信息 $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - 使用如下命令添加Docker的安装源 $ sudo add-apt-repository \ &amp;#34;deb [arch=amd64] https://download.</description></item><item><title>DOCKER构建MariaDB</title><link>/zh/posts/container-tech/mariadb-docker/</link><pubDate>Wed, 27 May 2015 23:09:00 +0800</pubDate><guid>/zh/posts/container-tech/mariadb-docker/</guid><description>现在 Docker 可所谓是最火的容器技术了，至于什么是 Docker，请到其官方网站或者维基百科查看。
+这里想通过一个示例来看看怎么通过 Dockerfile 来构建一个 Docker 镜像。
+构建MariaDB容器镜像 Docker 提供了两种方法来生产应用镜像:
+通过启动一个基础容器（比如基于某种 Linux 发行版的镜像的容器），然后在容器里执行各种命令来安装相应的软件包，进行配置后，再通过 docker commit 命令把已经更新的容器生产相应的镜像。 通过编写一个 Dockerfile ，然后使用 docker build 命令来构建相应的镜像。 相比第一种方式，通过 Dockerfile 的方式，可以更好的维护镜像，将镜像的 Dockerfile 提交到版本库管理。还可以在 Docker Hub 里创建镜像的自动构建。
+下面让我们通过如何编写 Dockerfile 来构建一个 mariadb 的镜像：
+首先创建一个目录，如 docker-mariadb ，然后编写一个名为 Dockerfile 的文件，内容如下：
+FROM opensuse:13.2 MAINTAINER Mengz You &amp;lt;you.mengz@yahoo.com&amp;gt; ENV MARIADB_MAJOR 10.0 ENV MARIADB_VERSION 10.0.17 ENV MYSQL_ROOT_PASSWORD mysecretpassword ENV MYSQL_DATADIR /var/lib/mysql RUN zypper ar -f -r http://download.opensuse.org/repositories/server:/database/openSUSE_13.2/server:database.repo \ &amp;amp;&amp;amp; zypper -n --gpg-auto-import-keys ref RUN zypper -n in --no-recommends mariadb-$MARIADB_VERSION net-tools \ &amp;amp;&amp;amp; zypper clean --all RUN mkdir -p /var/lib/mysql \ &amp;amp;&amp;amp; mkdir -p /var/log/mysql \ &amp;amp;&amp;amp; chown mysql:mysql /var/log/mysql VOLUME /var/lib/mysql COPY docker-entrypoint.</description></item></channel></rss>

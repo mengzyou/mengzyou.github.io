@@ -1,0 +1,113 @@
+<!doctype html><html lang=zh><head><title>DEVOPS</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="ie=edge"><link rel=stylesheet href=/application.fb9df7e952c9dccf496d00faec07de633aae460f909bbba4b5e0ad22f5887d73.css integrity="sha256-+5336VLJ3M9JbQD67AfeYzquRg+Qm7ukteCtIvWIfXM="><link rel=icon type=image/png href=/images/site/favicon_hu3d2f89ed4395f8e4a11f46415bebb510_10034_42x0_resize_box_3.png><meta property="og:title" content="DEVOPS"><meta property="og:description" content><meta property="og:type" content="website"><meta property="og:url" content="/zh/categories/devops/"><script src=https://cdn.counter.dev/script.js data-id=2905461c-37df-49f9-a4ca-0ea1ba64543a data-utcoffset=1></script></head><body class="type-categories kind-term" data-spy=scroll data-target=#TableOfContents data-offset=80><div class="container-fluid bg-dimmed wrapper"><nav class="navbar navbar-expand-xl top-navbar final-navbar shadow"><div class=container><button class="navbar-toggler navbar-light" id=sidebar-toggler type=button>
+<span class=navbar-toggler-icon></span></button>
+<a class=navbar-brand href=/zh/><img src=/images/site/main-logo_hu69a4da50b288ac7c5f97b1e1012a418e_8650_42x0_resize_box_3.png alt=Logo>
+Mengz's Space ...</a>
+<button class="navbar-toggler navbar-light" id=toc-toggler type=button>
+<span class=navbar-toggler-icon></span></button><div class="collapse navbar-collapse lang-selector" id=top-nav-items><ul class="navbar-nav ml-auto"><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href=# id=themeSelector role=button data-toggle=dropdown aria-haspopup=true aria-expanded=false><img id=navbar-theme-icon-svg src=/icons/moon-svgrepo-com.svg width=20 alt="Dark Theme"></a><div id=themeMenu class="dropdown-menu dropdown-menu-icons-only" aria-labelledby=themeSelector><a class="dropdown-item nav-link" href=# data-scheme=light><img class=menu-icon-center src=/icons/sun-svgrepo-com.svg width=20 alt="Light Theme"></a>
+<a class="dropdown-item nav-link" href=# data-scheme=dark><img class=menu-icon-center src=/icons/moon-svgrepo-com.svg width=20 alt="Dark Theme"></a>
+<a class="dropdown-item nav-link" href=# data-scheme=system><img class=menu-icon-center src=/icons/computer-svgrepo-com.svg width=20 alt="System Theme"></a></div></li></ul></div></div><img src=/images/site/main-logo_hu69a4da50b288ac7c5f97b1e1012a418e_8650_42x0_resize_box_3.png class=d-none id=main-logo alt=Logo>
+<img src=/images/site/inverted-logo_hu3d2f89ed4395f8e4a11f46415bebb510_10034_42x0_resize_box_3.png class=d-none id=inverted-logo alt="Inverted Logo"></nav><section class=sidebar-section id=sidebar-section><div class=sidebar-holder><div class=sidebar id=sidebar><form class=mx-auto method=get action=/zh/search><input type=text name=keyword placeholder=Search data-search id=search-box></form><div class=sidebar-tree><ul class=tree id=tree><li id=list-heading><a href=/zh/categories data-filter=all>Categories</a></li><div class="subtree taxonomy-terms"><li><a class=taxonomy-term href=/zh/categories/container/ data-taxonomy-term=container><span class=taxonomy-label>Container</span></a></li><li><a class="taxonomy-term active" href=/zh/categories/devops/ data-taxonomy-term=devops><span class=taxonomy-label>DEVOPS</span></a></li><li><a class=taxonomy-term href=/zh/categories/kubernetes/ data-taxonomy-term=kubernetes><span class=taxonomy-label>Kubernetes</span></a></li><li><a class=taxonomy-term href=/zh/categories/linux/ data-taxonomy-term=linux><span class=taxonomy-label>Linux</span></a></li><li><a class=taxonomy-term href=/zh/categories/opentool/ data-taxonomy-term=opentool><span class=taxonomy-label>OpenTool</span></a></li><li><a class=taxonomy-term href=/zh/categories/programming/ data-taxonomy-term=programming><span class=taxonomy-label>Programming</span></a></li><li><a class=taxonomy-term href=/zh/categories/windows/ data-taxonomy-term=windows><span class=taxonomy-label>Windows</span></a></li></div></ul></div></div></div></section><section class=content-section id=content-section><div class="content container-fluid" id=content><div class="container-fluid post-card-holder" id=post-card-holder><div class=post-card><a href=/zh/posts/devops/k3s-terraform-ansible/ class=post-card-link><div class=card><div class=card-head><img class=card-img-top src=/zh/posts/devops/k3s-terraform-ansible/k3s-terraform-ansible.jpeg alt="Hero Image"></div><div class=card-body><h5 class=card-title>IaC示例-TERRAFORM&amp;ANSIBLE创建K3S集群</h5><p class="card-text post-summary">轻量级Kubernetes集群-K3S文章介绍了一个轻量级的 Kubernetes 发行版本 - k3s 。
+这篇文章，我们将通过使用以下几个 IaC（Infrastructure as Code）工具，在本地环境（例如你的 Linux 工作台）自动化部署一个可用的 K3S 集群
+Packer - HashiCorp 开源的一个系统镜像构建工具。 Terraform - HashiCorp 开源的基础设施及代码自动化管理工具。 Ansible - RedHat赞助的一个开源社区项目，IT自动化配置工具。 环境需求 本演示将的所有操作将在一台支持虚拟化（kvm + qemu + libvirt) Linux 主机上执行。
+在 Ubuntu 上启用虚拟化环境，请参考 KVM hypervisor: a beginner&rsquo;s guide 。
+在 Fedora 上启用虚拟化环境，请参考 Getting startyed with virtualization (libvirt) 。
+在 openSUSE 上启用虚拟化环境，请参考 Virtualization Guide 。
+其他 Linux 发行版，请参考相关文档。
+我是在我的笔记本电脑上执行的操作，系统是 openSUSE Leap 15.4 。
+除了上述的虚拟化需求外，还需要在系统上安装上面提到的几个工具。如果你的环境中有 LinuxBrew，则可通过 Brew 直接安装
+❯ brew install packer terraform ansible 否则，请下载各自官方发布的二进制包，解压后放到 PATH 路径中。</p></div><div class=card-footer><span class=float-left>October 13, 2022</span>
+<a href=/zh/posts/devops/k3s-terraform-ansible/ class="float-right btn btn-outline-info btn-sm">Read</a></div></div></a></div><div class=post-card><a href=/zh/posts/devops/tf-rover/ class=post-card-link><div class=card><div class=card-head><img class=card-img-top src=/zh/posts/devops/tf-rover/tf-plan.png alt="Hero Image"></div><div class=card-body><h5 class=card-title>TF执行计划可视化</h5><p class="card-text post-summary">之前我们通过一篇文章入门了使用Terrafrom以声明式配置文件（可版本化的代码）来创建和管理基础设施资源。
+在使用命令terraform apply之前，我们通常使用terraform plan来查看执行计划，输出的执行计划以类似“git diff”的文本方式描述。这里我们将介绍如何以图形可是化的方式来了解执行计划。
+Terrafrom Graph 首先Terraform CLI工具自带了一个子命令 - graph，graph命令用于生产配置和执行计划的图形表示，其输出是DOT格式，可以通过Graphviz转化为图片，例如在Linux终端下
+❯ terraform graph | dot -Tsvg > graph.svg 对于简单的项目（管理的资源对象比较的情况），我们可以通过这个图形了解资源对象的关系。但是如果一个项目管理了大量的资源对象，使用graph生成的图形会显得错中复杂，而且图形文件也比较庞大。
+那接下我们将介绍一款开源的可视化工具。
+Rover Rover是一款开源的，可交互的Terraform配置和执行计划可视化工具，其通过Web服务的方式，是我们可以通过浏览器查看生成的图形，并进行一些交互操作。
+使用Rover非常容易，可以从其Github项目的Release下载为各平台编译好的二进制文件（命令）来运行，也可以通过Docker容器的方式运行。
+如果使用下载的二进制文件，将下载好的二进制文件（例如 rover_v0.2.2）放到PATH路径下，例如 /usr/local/bin/rover，接下來在Terraform项目的文件夹下执行
+❯ rover 2021/11/26 16:59:34 Starting Rover... 2021/11/26 16:59:34 Initializing Terraform... 2021/11/26 16:59:35 Generating plan... 2021/11/26 16:59:37 Parsing configuration... 2021/11/26 16:59:37 Generating resource overview... 2021/11/26 16:59:37 Generating resource map... 2021/11/26 16:59:37 Generating resource graph... 2021/11/26 16:59:37 Done generating assets. 2021/11/26 16:59:37 Rover is running on 0.</p></div><div class=card-footer><span class=float-left>November 26, 2021</span>
+<a href=/zh/posts/devops/tf-rover/ class="float-right btn btn-outline-info btn-sm">Read</a></div></div></a></div><div class=post-card><a href=/zh/posts/devops/open-gitops/ class=post-card-link><div class=card><div class=card-head><img class=card-img-top src=/zh/posts/devops/open-gitops/open-gitops.png alt="Hero Image"></div><div class=card-body><h5 class=card-title>解读OPEN GITOPS 1.0</h5><p class="card-text post-summary">GitOps的概念以及提出了几年时间了，伴随着DevOps的发展也来越流行。简单地说，GitOps是一套操作和管理软件系统的原则，其源自于现代软件运维，也根植于之前存在和广泛采用的最佳实践。虽然其名字中包含Git，但其所表示的是与版本控制系统相关，而不仅限于Git工具。也可以说其是一个运维框架，它将 DevOps 最佳实践用于应用程序开发，例如版本控制、协作、合规性和 CI/CD 工具，并将它们应用于基础设施自动化。
+去年，来自Amazon和Azure，Codefresh，Github，Redhat，Weaveworks等具有云原生经验公司的工程师们在云原生计算基金会（CNCF）下组建了一个GitOps工作组，并创建了OpenGitOps项目。
+GitOps工作组在上个月（10/09）发布了OpenGitOps原则和术语1.0版本。
+OpenGitOps 1.0 GitOps工作组的联合主席 - Leonardo Murillo说过，“很多人认为他们在做GitOps，因为他们正在使用git，并且使用拉取请求（Pull Request）和推送更改（Push Changes）。而我们希望社区开始看到GitOps不仅仅是使用git的CI/CD流水线，其还包含很多”。
+工作组首先定义了GitOps的核心原则和相关术语，而我们可以用自己的方式自由地解释这些原则，并通过相关的DevOps工具实现最佳实践。
+发布的1.0版本由两个简单的原则和术语文档组成，每一个原则都讨论了系统的需求状态（Desired State）以及它应该如何运行。
+GitOps所管理的系统的需求状态必须满足
+声明式的（Declarative） - GitOps管理的系统必须以声明的方式表达其所需要的状态。 版本化和不可变（Versioned & Immutable） - 系统所需要的状态将以不可变、版本化的方式存储，以及保留完整的版本历史信息。 自动拉取（Pulled Automatically） - 软件代理会自动从源中提取所需的状态声明。 持续调节（Continuously Reconciled） - 软件代理持续观察系统状态并尝试达到系统所需要的状态。 进一步解读 声明式的状态应该很好理解，声明式的描述不应该包含如何达到需求状态的操作，而仅仅描述系统或者应用所需要的状态。例如可使用Terraform来描述和管理一个基础设施，也可以使用Kubernetes的应用部署文件（mainfest）来管理部署的应用。
+版本化和不可变通常理解为是用“git”，其实不仅限于此，这里更加强调的是使用具体的版本标签来定义系统的一个版本状态，而不应该使用例如“latest”之类的标签，因为其不能回退到之前所需要的状态。而其他版本管理系统，只要满足这样的版本标签功能，以及符合团队的协作方式，都可用于GitOps。
+自动拉取意味着我们必须有一个系统内的代理持续观测系统的状态，其需要时时刻刻知道系统所需要的状态和当前状态，而不是在触发确切的更改时才去获取系统得到状态。这里的拉取（Pull）明确地表明了其于CI/CD流水线由条件来触发的不同。
+而持续调节将以上三个部分整合，系统内的代理必须时刻了解管理的系统的实际状态和所需的状态，当发现实际状态和所需的状态由偏差时，或者发现所需状态被改变时（版本改变），其应该尽力时系统状态达到所需求的状态。而这一切都是由系统自动完成的。
+当团队遵循以上原则来管理和维护系统和应用时，才是对GitOps的真正实践。
+OpenGitOps发展 OpenGitOps 1.0仅仅定义了部分实现GitOps的原则，接下来还需要扩展更多的定义，例如如何在GitOps环境中处理事件管理，安全管理，凭证管理等。如果我们的基础设施环境以及我们的应该出现故障，那么在GitOps中应该遵循怎么样的处理原则？
+期待CNCF GitOps工作组的进一步工作。</p></div><div class=card-footer><span class=float-left>November 25, 2021</span>
+<a href=/zh/posts/devops/open-gitops/ class="float-right btn btn-outline-info btn-sm">Read</a></div></div></a></div><div class=post-card><a href=/zh/posts/devops/tf-cloud/ class=post-card-link><div class=card><div class=card-head><img class=card-img-top src=/zh/posts/devops/tf-cloud/tf-cloud.jpg alt="Hero Image"></div><div class=card-body><h5 class=card-title>迁移本地项目到TF CLOUD</h5><p class="card-text post-summary">之前文章我们尝试了在本地环境使用Terraform来创建和管理AWS Lightsail资源，对于管理一些云资源，我们需要在本地安装相应的CLI工具和配置访问相应云资源的凭据（例如AWS CLI， AccessKeyID等），Terraform通过调用本地的CLI工具或者云API来管理云资源的状态，其默认使用的是local类型的Backend，资源的状态文件(.tfstate)也是保存在本地文件目录中的。
+这篇文章我们将尝试使用remote类型的Backend，将项目迁移到Terraform Cloud去执行，并且由Terraform Cloud来管理资源状态。
+什么是Terraform Cloud Terraform Cloud 是一个管理Terraform在一致且可靠的环境中运行的SaaS应用，从而可以替换在本地机器是执行Terraform项目，其存储共享的状态和机密数据，并可以连接到版本控制系统（如 Git)，使得我们可以在团队中将基础设施作为代码进行工作。
+Terraform是一个商业应用，团队和商业使用将会收取费用并提供了更多的高级功能。但对于个人用户，可以免费使用基本的功能。关于费用和功能详情，可以参考 (https://www.hashicorp.com/products/terraform/pricing)。
+首先我们需要注册一个Terraform Cloud的账号，访问 https://app.terraform.io/public/signup/account ，根据提示注册账号
+注册完成后第一次登陆Terraform Cloud，其会询问如何开始一个项目，这里我们选择 Start from scratch，也就是将从一个空模板开始
+接下来我们需要创建一个组织（Organization），例如这里我创建一个名为 learn-terraform 的组织，一个组织就类似要给命名空间，可以管理多个工作空间（Workspace），还可以管理其下工作空间共享的变量和环境变量。
+接下来我们需要在本地环境登录Terraform Cloud，并添加相应的配置来重新初始化项目。
+重新初始项目 完成了Terraform Cloud的账号注册之后，我们需要在本地终端运行 terraform login ，会打开浏览器来登录账号得到一个Token值，将其复制填入终端完成登录
+> terrafrom login Terraform must now open a web browser to the tokens page for app.terraform.io. If a browser does not open this automatically, open the following URL to proceed: https://app.terraform.io/app/settings/tokens?source=terraform-login --------------------------------------------------------------------------------- Generate a token using your browser, and copy-paste it into this prompt.</p></div><div class=card-footer><span class=float-left>November 25, 2021</span>
+<a href=/zh/posts/devops/tf-cloud/ class="float-right btn btn-outline-info btn-sm">Read</a></div></div></a></div><div class=post-card><a href=/zh/posts/devops/tf-aws-lightsail/ class=post-card-link><div class=card><div class=card-head><img class=card-img-top src=/zh/posts/devops/tf-aws-lightsail/tf-aws.jpg alt="Hero Image"></div><div class=card-body><h5 class=card-title>TF管理AWS LIGHTSAIL实例</h5><p class="card-text post-summary">Terraform是一种开源基础设施及代码（IaC）的工具，可提供一致的CLI（命令行接口)工作流来管理数百个云服务，将云API编码为声明性的配置文件进行管理。
+本文创建一个管理AWS Lightsail实例的例子来入门Terraform的使用。
+安装Terraform CLI 要使用Terramform，首先要在本地系统安装Terraform命令行工具。HashiCorp提供了预编译好的二进制分发包，可以通过(https://www.terraform.com/downolads.html) 直接下载相应平台的二进制包，解压后放到相应的执行路径。也可以通过一些软件包管理工具安装，例如在Linux/OS X上通过LinuxBrew/HomeBrew进行安装，在Windows上通过Chocolatey进行安装。
+这里我们示例在Linux上是使用LinuxBrew进行安装
+> brew install terraform 安装完成后，可以查看其版本
+❯ terraform -version Terraform v1.0.11 on linux_amd64 使用-help查看其可用命令，安装成功后，我们就可以使用Terraform来创建相应的基础设施项目了。
+AWS账号准备 本文将通过创建一个管理AWS Lightsial实例的项目来尝试Terraform，因此需要一个AWS账号，以及在本地环境安装和配置好AWS CLI工具的访问凭据。
+安装和配置AWS CLI，请参考其文档 (https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) 。 配置完成之后，可以在本地命令行终端访问相应的AWS资源。
+创建并初始化Terraform项目 Terraform在本地通过文件夹来管理一个基础设施项目的声明性代码，例如我们在本地创建一个文件夹
+> mkdir mylightsail > cd mylightsail/ 进入文件夹后，创建一个以 .tf 作为后缀的文件，例如 main.tf
+> touch main.tf 然后使用编辑器打开文件进行编辑，写入以下代码块
+terraform { required_providers { aws = { source = "hashicorp/aws" version = "~> 3.65" } } } # Configure the AWS Provider provider "aws" { region = "ap-southeast-1" } 其中 terraform/required_providers 块定义了该项目需要的 Provider，Terraform是通过不同的Provider来管理相应的基础设施资源的，可到 (https://registry.</p></div><div class=card-footer><span class=float-left>November 23, 2021</span>
+<a href=/zh/posts/devops/tf-aws-lightsail/ class="float-right btn btn-outline-info btn-sm">Read</a></div></div></a></div><div class=post-card><a href=/zh/posts/devops/single-application-cicd/ class=post-card-link><div class=card><div class=card-head><img class=card-img-top src=/zh/posts/devops/single-application-cicd/single-application-cicd.png alt="Hero Image"></div><div class=card-body><h5 class=card-title>一体化CI/CD平台</h5><p class="card-text post-summary">前言 匆匆忙忙结束了2020年，想着还是要在2021年的第一个月要写一篇文章。在看了[Gitlab]推送的文章之后，自己也比较认同在DevOps实践中如果使用一个一体化的CI/CD平台或者工具所能带来的好处。
+不过每个组织或者团队有自身的一些考量和实际情况，就比如的当前我在工作中也使用了多个工具来实现整个CI/CD流程，似乎是分离了CI和CD的过程，因为公司更加考量了做交付的稳定性和安全性考量，并没有做到完全的持续发布。
+所以这篇文章仅仅是探讨一些一体化CI/CD平台可以带来的优势。
+CI/CD 持续继承和交付（CI/CD）改变了我们构建，测试和部署软件应用的方式。CI/CD工具自动化这些流程，减少错误率，并且优化了整个工作流。代码在整个开发阶段中进行自动化测试，已确保在错误到达生产之前就将其捕获并修复。
+CI/CD工具的使用将持续增加并改善软件开发的方式，应的部署也不再需要是每年一次，每个季度一次，甚至每个月一次。通过CI/CD，开发运维团队可以一天内部署多次。
+10个CI/CD的优点 上面说了什么是CI/CD，那接下来我们看看其有哪些优点。
+1. 更少的交接
+在开发管道中更多的交接，那将带来更多的故障点和更多的复杂性。
+2. 增加开发速度
+通过CI/CD，开发的所有阶段都更快，整个过程中更快的迭代速度使每个团队的工作效率更高，开发人员也可以更有信心地转移到其他项目。
+3. 更多的部署
+每两周或更长时间发生一次的发布，现在可以每天推送多次。
+4. 更快的测试
+开发工作流程中一个比较耗时的部分被移除，开发人员可以从事其他高价值的项目。自动化测试让团队可以更快速地获得反馈，并尽早失败，而不是在生产中产生这些错误，或者更糟糕地将错误带到最终的发布版本中。
+5. 更少的代码缺陷
+通过开发流程中引入自动化测试，在代码缺陷发生时就能及时捕获，并避免代码合并入主分支。这样可以确保整体上的具有更高的代码质量，并且每个发布版本都能按预期工作。
+6. 增强合规性
+合规性任务可以纳入开发生命周期，减少发布不合规应用的风险。自动化合规检查使得更容易完成审核，并可以防止高代价的错误。
+7. 更多的创新时间
+花费在集成维护的时间越少，IT支出不变，也就意味着可以更多的时间投入到其他地方。
+8. 更开心的开发者 开发人员能够更有自信地工作和快速地修复缺陷，而不是等上几个星期来了解错误发生在哪里。
+9. 减少管理费用
+组织中开发人员的时间是有限的，开发时间是可计费时间的很多倍，而手动测试和部署代码可能会破坏整个IT预算。自动化的工作流程减少了手动任务，可以使预算更加有效。
+. 流程一致性
+开发流程中具有更高的自动化程度意味着没人会忘记该过程中执行的步骤，也使得构建更加一致。这样更容易培训新的开发人员，组织也可以更加容易控制如何构建，以及何时进行发布。
+一体式CI/CD优势 上面概述了CI/CD可以带来的好处，然而在实际的实践中，如何真正地衡量生产力速度，需要评估整个软件开发生命周期（SDLC），而不仅仅是点点滴滴。
+无缝地持续集成和交付应具有使应用程序为部署做好准备所需的一切，不幸的是，很多使用CI/CD的组织由于使用的工具而陷入了无法达到最佳工作流程的困境。
+一个可以在整个软件开发生命周期提供可见性的应用程序是确保和优化每个开发阶段的最佳方法，当一切都在一个屋檐下时，就容易发现流程的瓶颈，以及评估影响开发速度的每一个元素。
+在单个DevOps平台下的每个步骤都提供了一条信息，可就是否准备好合并代码做出明智的决定。当然，所有这些步骤可以在没有一体式CI/CD的解决方案的情况下执行，但是功能全面的工具可以创建单一的事实来源，在此情况下，可以更快地监视每个步骤，并减少遗漏错误的可能性。
+一体式CI/CD平台带来以下好处：
+整个软件开发生命周期的可见性 所有开发阶段的单一真实来源 无需登陆多个应用程序 在一个界面上导航更简单 只需要安装，维护，扩展，备份一个应用程序 更容易的授权管理 降低运营费用 因此，推荐在组织或团队中构建单一的CI/CD平台来加速应用创新，例如选择使用 Gitlab，Github，以及各大公有云提供商发行的DevOps平台及工具来优化整个CI/CD流水线。</p></div><div class=card-footer><span class=float-left>January 25, 2021</span>
+<a href=/zh/posts/devops/single-application-cicd/ class="float-right btn btn-outline-info btn-sm">Read</a></div></div></a></div><div class=post-card><a href=/zh/posts/devops/github-actions/ class=post-card-link><div class=card><div class=card-head><img class=card-img-top src=/zh/posts/devops/github-actions/github-actions.png alt="Hero Image"></div><div class=card-body><h5 class=card-title>GITHUB ACTIONS工作流</h5><p class="card-text post-summary">这篇文章以一个简单的Nodejs应用为例，示例如何使用Github Actions来自动构建，测试和部署一个应用．
+什么是Github Actions 首先简单介绍下什么是Github Actions？　Github Actions是Github官方提供的一个与Github集成在一起的CI/CD工具，使用Github Actions可以非常容易地自动化你的所有软件工作流程，包括持续集成（CI）和持续发布（CD）．
+不过要使用Github Actions，你需要将你的项目代码库放在Github上，然后为代码库配置相应的工作流（Workflows）．　Actions Runner 使用Github Actions来执行工作流任务，还需要一个可执行的环境，Actions Runner就是提供这样的环境，Github Actions支持两种类型的Runner:
+Github-Hosted Runner : 由Github官方提供和维护的Runner服务器，不需要用户自己维护和更新，有支持Linnux，Windows，macOS环境的构建 Self-Hosted Runner : 用户自己使用本地机器，云服务器安装Actions应用，用户可以自定义硬件，软件等需求 Actions 在Github Actions中有一个Action的概念，Actions是一个独立的任务，你可以组合这些任务成为要完成一个工作的步骤.　在工作步骤中，你可以自己写执行命令组成Action，也可以直接使用Github社区提供的针对一个写公共任务的Actions，可以到Github市场查找社区或者其他开发人员编写的Actions．　例如一个最常用的Action - checkout，可用来检出代码库：
+- uses: actions/checkout@v2 除了以上概念之外，Github Actions还有其他概念需要了解，具体可参考　(https://help.github.com/en/actions/getting-started-with-github-actions/overview)
+Nodejs应用示例 接下来，我们就那个简单的nodejs应用来看看如何使用Github Actions创建CI/CD的流程．
+首先，你的项目代码库需要放在Github上，例如　https://github/mengzyou/hellonode/ ，访问你的代码库主页，然后点击 Actions 进入Actions页面．
+根据你的代码库的语言类型，Github推荐了一些Workflow的模板，这里我们将使用Nodejs的模板　直接点击 Set up this workflow 来应用这个模板，然后Github会直接打来Web编辑器来编辑这个模板文件
+你可以直接使用该文件，也可以修改，添加需要的Actions，完成之后可以点击　Start commit 按钮来提交Workflow文件，Github会自动为代码库创建目录　.github/workflows/，以及把该文件放在该目录下，例如　.github/workflows/nodejs.yml .　提交之后，Github Actions就会根据Workflow的内容开始运行相应的工作．
+创建一个执行测试CI工作流 其实我们也可以直接编辑本地代码库，添加目录　.github/workflows/｀，以及创建相应的Workflows配置文件，例如我们创建一个　.github/workflows/nodejs.yml`　name: Node.js CI on: push: branches: - master jobs: build: runs-on: ubuntu-latest container: node:12.</p></div><div class=card-footer><span class=float-left>March 5, 2020</span>
+<a href=/zh/posts/devops/github-actions/ class="float-right btn btn-outline-info btn-sm">Read</a></div></div></a></div><div class=post-card><a href=/zh/posts/devops/gitlab-ci-docker/ class=post-card-link><div class=card><div class=card-head><img class=card-img-top src=/zh/posts/devops/gitlab-ci-docker/gitlab-ci-docker.png alt="Hero Image"></div><div class=card-body><h5 class=card-title>GITLAB CI自动部署容器应用</h5><p class="card-text post-summary">容器 Docker 越来越受开发者和运维人员的喜爱，更是作为实践 DevOps 的一个中要工具。同时 Gitlab 提供了免费的代码管理服务，其 gitlab-ci 更是提供了强大的自动化 CI/CD 流程功能。
+本文以一个静态站点的示例来说明如何使用 gitlab-ci 和 docker 进行容器镜像的构建，以及如何将镜像自动化部署到目标服务器上。
+编写Dockerfile 首先在代码库中增加 Dockerfile ，用于描述如何构建应用的容器镜像。以下是一个基于 Hugo 的静态站点应用的示例：
+FROM mengzyou/hugo:latest as builder COPY . /app/ RUN hugo FROM nginx:1.16-alpine RUN set -x \ && rm -f /etc/nginx/conf.d/default.conf \ && mkdir -p /usr/share/nginx/html COPY --from=builder /app/nginx-default.conf /etc/nginx/conf.d/default.conf COPY --from=builder /app/public/ /usr/share/nginx/html 其实非常简单，使用了多阶段构建，以 mengzyou/hugo 作为构建镜像，然后将生成的静态文件拷贝到 nginx 镜像中，最终生成静态站点的镜像。
+配置Gitlab-ci构建容器镜像 该阶段，在项目根目录添加 .gitlab-ci.yml 文件，示例内容如下：
+variables: DOCKER_DRIVER: overlay2 CI_REGISTRY_IMAGE: ${CI_REGISTRY}/mengzyou/app before_script: - echo $CI_JOB_NAME - echo $CI_PROJECT_DIR stages: - build build:docker: stage: build variables: DOCKER_HOST: tcp://docker:2375 image: docker:stable services: - docker:dind script: - echo "Building image - $CI_REGISTRY_IMAGE:latest" - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY - docker image build --force-rm --no-cache -t $CI_REGISTRY_IMAGE:latest .</p></div><div class=card-footer><span class=float-left>January 1, 0001</span>
+<a href=/zh/posts/devops/gitlab-ci-docker/ class="float-right btn btn-outline-info btn-sm">Read</a></div></div></a></div></div><div class=paginator></div></div></section></div><footer id=footer class="container-fluid text-center align-content-center footer pb-2"><div class="container pt-5"><div class="row text-left"><div class="col-md-4 col-sm-12"><h5>Navigation</h5><ul><li class=nav-item><a class=smooth-scroll href=/zh/#about>关于</a></li><li class=nav-item><a class=smooth-scroll href=/zh/#skills>技能</a></li><li class=nav-item><a class=smooth-scroll href=/zh/#experiences>工作经历</a></li><li class=nav-item><a class=smooth-scroll href=/zh/#education>教育</a></li><li class=nav-item><a class=smooth-scroll href=/zh/#recent-posts>近期文章</a></li><li class=nav-item><a class=smooth-scroll href=/zh/#accomplishments>技能学习</a></li></ul></div><div class="col-md-4 col-sm-12"><h5>Contact me:</h5><ul><li><a href=mailto:mengz.you@outlook.com target=_blank rel=noopener><span><i class="fas fa-envelope"></i></span> <span>mengz.you@outlook.com</span></a></li><li><a href=https://github.com/mengzyou target=_blank rel=noopener><span><i class="fab fa-github"></i></span> <span>mengzyou</span></a></li><li><a href=https://www.linkedin.com/in/mengzyou target=_blank rel=noopener><span><i class="fab fa-linkedin"></i></span> <span>You Mengzhe</span></a></li></ul></div></div></div><hr><div class=container><div class="row text-left"><div class=col-md-4><a id=theme href=https://github.com/hugo-toha/toha target=_blank rel=noopener><img src=/images/theme-logo_hu8376fd15465fef26ffe66b6bcf0ca686_13669_32x0_resize_box_3.png alt="Toha Theme Logo">
+Toha</a></div><div class="col-md-4 text-center">© 2023 Copyright.</div><div class="col-md-4 text-right"><a id=hugo href=https://gohugo.io/ target=_blank rel=noopener>Powered by
+<img src=/images/hugo-logo.svg alt="Hugo Logo" height=18></a></div></div></div></footer><script src=/application.d06ddacd4080231ac954a78539ea5f5a1921ebbd740618450ead7a0e8466dfda.js integrity="sha256-0G3azUCAIxrJVKeFOepfWhkh6710BhhFDq16DoRm39o=" defer></script></body></html>
