@@ -24,6 +24,6 @@ customMenus:
 openGraph:
   title: Mengz's Personal Site
   type: website
-  description: Portfolio and personal blog of Mengz.
-  image: images/author/mengzyou.webp
+  description: Portfolio and personal blog of Mengz, SRE working.
+  image: https://megnz.dev/images/site/homepage-en.webp
   url: https://mengz.dev/

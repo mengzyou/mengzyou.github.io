@@ -19,8 +19,9 @@ customMenus:
 
 # Specify OpenGraph Headers
 openGraph:
-  title: 梦哲的个人主页
+  title: 梦哲的个人空间
   type: website
-  description: 梦哲的个人主页和博客
-  image: images/author/mengzyou.webp
+  locale: zh_CN
+  description: "梦哲的个人空间和博客文章，SRE的工作记录"
+  image: https://mengz.dev/images/site/homepage-zh.webp
   url: https://mengz.dev/zh/
