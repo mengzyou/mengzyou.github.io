@@ -23,5 +23,5 @@ openGraph:
   type: website
   locale: zh_CN
   description: "梦哲的个人空间和博客文章，SRE的工作记录"
-  image: https://mengz.dev/images/site/homepage-zh.webp
+  image: https://images.mengz.dev/posts/homepage-zh.webp
   url: https://mengz.dev/zh/
