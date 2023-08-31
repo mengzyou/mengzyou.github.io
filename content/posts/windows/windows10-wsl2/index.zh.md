@@ -45,7 +45,7 @@ PS C:\Windows\system32> dism.exe /online /enable-feature /featurename:Microsoft-
 以上命令执行成功之后，继续执行如下命令来开启Hyper-V的功能  
 
 ```powershell
-PS C:\Windows\system32> dism.exe /online /enable-feature /featurename:VirutalMachinePlatform /all /norestart
+PS C:\Windows\system32> dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
 ```
 
 完成以上操作之后，需要重启Windows操作系统，重启之后再次登陆系统。  
