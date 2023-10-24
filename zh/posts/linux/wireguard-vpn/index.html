@@ -21,16 +21,16 @@ Mengz's Space ...</a>
 </span></span><span style=display:flex><span><span style=color:#ae81ff>\#</span> cd /etc/wireguard/
 </span></span><span style=display:flex><span><span style=color:#ae81ff>\#</span> umask <span style=color:#ae81ff>077</span>
 </span></span><span style=display:flex><span><span style=color:#ae81ff>\#</span> wg genkey | tee privatekey | wg pubkey &gt; publickey
-</span></span></code></pre></div><p>执行完上述命令后，我们会在目录 <em>/etc/wireguard/</em> 下生产两个密钥文件 <em>privatekey</em> 和 <em>publickey</em> 。</p><p>接下来我们需要创建一个接口配置文件，命名为 <em>wg0.conf</em>，编辑并添加如下内容</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-conf data-lang=conf><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>[</span>Interface<span style=color:#960050;background-color:#1e0010>]</span>
-</span></span><span style=display:flex><span><span style=color:#75715e>## VPN server private IP address ##
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>Address <span style=color:#f92672>=</span> <span style=color:#ae81ff>192.168.6.1/24</span>
-</span></span><span style=display:flex><span> 
-</span></span><span style=display:flex><span><span style=color:#75715e>## VPN server port ##
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>ListenPort <span style=color:#f92672>=</span> 4114
-</span></span><span style=display:flex><span> 
-</span></span><span style=display:flex><span><span style=color:#75715e>## VPN server&#39;s private key i.e. /etc/wireguard/privatekey ##
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>PrivateKey <span style=color:#f92672>=</span> xxxxxxxxxxxxxxxxxxxxxxxxxxxx
-</span></span></code></pre></div><p>其中 <strong>Address</strong> 指定该网络接口的IP地址，可自己设定一个子网的地址，<strong>ListenPort</strong> 指定WG的UDP监听端口（客户端将需要配置该端口进行连接），<strong>PrivateKey</strong> 就是上面生成的私有密钥的内容。</p><p>如果你的系统开启了UFW防火墙，记住要配置ufw允许以上端口（4114），例如</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ sudo ufw status
+</span></span></code></pre></div><p>执行完上述命令后，我们会在目录 <em>/etc/wireguard/</em> 下生产两个密钥文件 <em>privatekey</em> 和 <em>publickey</em> 。</p><p>接下来我们需要创建一个接口配置文件，命名为 <em>wg0.conf</em>，编辑并添加如下内容</p><pre tabindex=0><code class=language-conf data-lang=conf>[Interface]
+## VPN server private IP address ##
+Address = 192.168.6.1/24
+ 
+## VPN server port ##
+ListenPort = 4114
+ 
+## VPN server&#39;s private key i.e. /etc/wireguard/privatekey ##
+PrivateKey = xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+</code></pre><p>其中 <strong>Address</strong> 指定该网络接口的IP地址，可自己设定一个子网的地址，<strong>ListenPort</strong> 指定WG的UDP监听端口（客户端将需要配置该端口进行连接），<strong>PrivateKey</strong> 就是上面生成的私有密钥的内容。</p><p>如果你的系统开启了UFW防火墙，记住要配置ufw允许以上端口（4114），例如</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ sudo ufw status
 </span></span><span style=display:flex><span>Status: active
 </span></span><span style=display:flex><span>$ sudo ufw allow 4114/udp
 </span></span></code></pre></div><p>我们这里使用的是云主机，则需要在云控制台配置相应的安全组/防火墙开放 <code>4114/udp</code> 端口的访问。</p><p>接下来，执行以下命令启动WireGuard服务</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ sudo systemctl enable wg-quick@wg0
@@ -74,26 +74,26 @@ Mengz's Space ...</a>
 </span></span><span style=display:flex><span><span style=color:#ae81ff>\#</span> cd /etc/wireguard/
 </span></span><span style=display:flex><span><span style=color:#ae81ff>\#</span> umask <span style=color:#ae81ff>077</span>
 </span></span><span style=display:flex><span><span style=color:#ae81ff>\#</span> wg genkey | tee privatekey | wg pubkey &gt; publickey
-</span></span></code></pre></div><p>创建 <em>/etc/wireguard/wg0.conf</em> 文件，配置如下</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-conf data-lang=conf><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>[</span>Interface<span style=color:#960050;background-color:#1e0010>]</span>
-</span></span><span style=display:flex><span><span style=color:#75715e>## This Desktop/client&#39;s private key ##
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>PrivateKey <span style=color:#f92672>=</span> <span style=color:#960050;background-color:#1e0010>&lt;</span>client private key<span style=color:#960050;background-color:#1e0010>&gt;</span>
-</span></span><span style=display:flex><span> 
-</span></span><span style=display:flex><span><span style=color:#75715e>## Client ip address ##
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>Address <span style=color:#f92672>=</span> <span style=color:#ae81ff>192.168.40.10/24</span>
-</span></span><span style=display:flex><span> 
-</span></span><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>[</span>Peer<span style=color:#960050;background-color:#1e0010>]</span>
-</span></span><span style=display:flex><span><span style=color:#75715e>## public key ##
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>PublicKey <span style=color:#f92672>=</span> <span style=color:#960050;background-color:#1e0010>&lt;</span>Server public key<span style=color:#960050;background-color:#1e0010>&gt;</span>
-</span></span><span style=display:flex><span> 
-</span></span><span style=display:flex><span><span style=color:#75715e>## set ACL ##
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>AllowedIPs <span style=color:#f92672>=</span> <span style=color:#ae81ff>192.168.40.0/24</span>
-</span></span><span style=display:flex><span> 
-</span></span><span style=display:flex><span><span style=color:#75715e>## Your Ubuntu 20.04 LTS server&#39;s public IPv4/IPv6 address and port ##
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>Endpoint <span style=color:#f92672>=</span> <span style=color:#ae81ff>35.220.179.202</span><span style=color:#960050;background-color:#1e0010>:</span>4114
-</span></span><span style=display:flex><span> 
-</span></span><span style=display:flex><span><span style=color:#75715e>##  Key connection alive ##
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>PersistentKeepalive <span style=color:#f92672>=</span> 15
-</span></span></code></pre></div><p>注意需要分别配置接口（也就是客户端自己）的私有密钥，还要配置连接服务端（peer）的公共密钥，还有连接服务端的IP和端口信息。</p><p>启动连接</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>❯ sudo systemctl start wg-quick@wg0.service
+</span></span></code></pre></div><p>创建 <em>/etc/wireguard/wg0.conf</em> 文件，配置如下</p><pre tabindex=0><code class=language-conf data-lang=conf>[Interface]
+## This Desktop/client&#39;s private key ##
+PrivateKey = &lt;client private key&gt;
+ 
+## Client ip address ##
+Address = 192.168.40.10/24
+ 
+[Peer]
+## public key ##
+PublicKey = &lt;Server public key&gt;
+ 
+## set ACL ##
+AllowedIPs = 192.168.40.0/24
+ 
+## Your Ubuntu 20.04 LTS server&#39;s public IPv4/IPv6 address and port ##
+Endpoint = 35.220.179.202:4114
+ 
+##  Key connection alive ##
+PersistentKeepalive = 15
+</code></pre><p>注意需要分别配置接口（也就是客户端自己）的私有密钥，还要配置连接服务端（peer）的公共密钥，还有连接服务端的IP和端口信息。</p><p>启动连接</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>❯ sudo systemctl start wg-quick@wg0.service
 </span></span><span style=display:flex><span>❯ sudo wg
 </span></span><span style=display:flex><span>interface: wg0
 </span></span><span style=display:flex><span>  public key: 1abmCvigQqhXYLOkvjrU864dOyJHN9bf6Ya0GP4tXzs<span style=color:#f92672>=</span>
@@ -106,10 +106,10 @@ Mengz's Space ...</a>
 </span></span><span style=display:flex><span>  latest handshake: <span style=color:#ae81ff>4</span> seconds ago
 </span></span><span style=display:flex><span>  transfer: <span style=color:#ae81ff>92</span> B received, <span style=color:#ae81ff>180</span> B sent
 </span></span><span style=display:flex><span>  persistent keepalive: every <span style=color:#ae81ff>15</span> seconds
-</span></span></code></pre></div><p>这个时候还不能通过VPN直接访问服务器端，想要客户端和服务端可以通过VPN的私有网络互相访问，这个时候需要到服务端添加[Peer]的配置，服务端向文件 <em>/etc/wireguard/wg0.conf</em> 添加以下内容</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-conf data-lang=conf><span style=display:flex><span><span style=color:#960050;background-color:#1e0010>[</span>Peer<span style=color:#960050;background-color:#1e0010>]</span>
-</span></span><span style=display:flex><span>PublicKey <span style=color:#f92672>=</span> <span style=color:#960050;background-color:#1e0010>+</span>pztufezkYV8ujhJI2N2Q5SW5yuuTXzHmytrGdJjziE<span style=color:#f92672>=</span>
-</span></span><span style=display:flex><span>AllowedIPs <span style=color:#f92672>=</span> <span style=color:#ae81ff>192.168.40.10/32</span>
-</span></span></code></pre></div><p>重启服务器，客户端服务</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ sudo systemctl restart wg-quick@wg0
+</span></span></code></pre></div><p>这个时候还不能通过VPN直接访问服务器端，想要客户端和服务端可以通过VPN的私有网络互相访问，这个时候需要到服务端添加[Peer]的配置，服务端向文件 <em>/etc/wireguard/wg0.conf</em> 添加以下内容</p><pre tabindex=0><code class=language-conf data-lang=conf>[Peer]
+PublicKey = +pztufezkYV8ujhJI2N2Q5SW5yuuTXzHmytrGdJjziE=
+AllowedIPs = 192.168.40.10/32
+</code></pre><p>重启服务器，客户端服务</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>$ sudo systemctl restart wg-quick@wg0
 </span></span></code></pre></div><p>这个时候就建立了一个P-to-P的VPN网络，可以使用私有IP互相访问</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>❯ ping 192.168.40.1
 </span></span><span style=display:flex><span>PING 192.168.40.1 <span style=color:#f92672>(</span>192.168.40.1<span style=color:#f92672>)</span> 56<span style=color:#f92672>(</span>84<span style=color:#f92672>)</span> bytes of data.
 </span></span><span style=display:flex><span><span style=color:#ae81ff>64</span> bytes from 192.168.40.1: icmp_seq<span style=color:#f92672>=</span><span style=color:#ae81ff>2</span> ttl<span style=color:#f92672>=</span><span style=color:#ae81ff>64</span> time<span style=color:#f92672>=</span>51.8 ms
@@ -121,6 +121,6 @@ Mengz's Space ...</a>
 <a class="btn btn-sm twitter-btn" href="https://twitter.com/share?url=%2fzh%2fposts%2flinux%2fwireguard-vpn%2f&text=%e5%9c%a8LINUX%e4%b8%8a%e9%85%8d%e7%bd%aeWIREGUARD&via=Mengz%27s%20Space%20..." target=_blank><i class="fab fa-twitter"></i></a>
 <a class="btn btn-sm linkedin-btn" href="https://www.linkedin.com/shareArticle?url=%2fzh%2fposts%2flinux%2fwireguard-vpn%2f&title=%e5%9c%a8LINUX%e4%b8%8a%e9%85%8d%e7%bd%aeWIREGUARD" target=_blank><i class="fab fa-linkedin"></i></a></div></div><hr><div class="row next-prev-navigator"><div class="col-md-6 previous-article"><a href=/zh/posts/linux/opensuse-upgrade/ title="升级OPENSUSE LEAP" class="btn btn-outline-info"><div><i class="fas fa-chevron-circle-left"></i> Prev</div><div class=next-prev-text>升级OPENSUSE LEAP</div></a></div><div class="col-md-6 next-article"><a href=/zh/posts/linux/ubuntu-old-kernel/ title=在UBUNTU上删除旧的内核 class="btn btn-outline-info"><div>Next <i class="fas fa-chevron-circle-right"></i></div><div class=next-prev-text>在UBUNTU上删除旧的内核</div></a></div></div><hr></div></div></div><a id=scroll-to-top class=btn><i class="fas fa-chevron-circle-up"></i></a></section><section class=toc-section id=toc-section><div class=toc-holder><h5 class="text-center pl-3">Table of Contents</h5><hr><div class=toc><nav id=TableOfContents><ul><li><a href=#服务器端安装wireguard>服务器端安装WireGuard</a></li><li><a href=#配置wireguard服务端>配置WireGuard服务端</a></li><li><a href=#配置客户端连接wg>配置客户端连接WG</a></li><li><a href=#总结>总结</a></li></ul></nav></div></div></section></div><footer id=footer class="container-fluid text-center align-content-center footer pb-2"><div class="container pt-5"><div class="row text-left"><div class="col-md-4 col-sm-12"><h5>Navigation</h5><ul><li class=nav-item><a class=smooth-scroll href=/zh/#about>关于</a></li><li class=nav-item><a class=smooth-scroll href=/zh/#skills>技能</a></li><li class=nav-item><a class=smooth-scroll href=/zh/#experiences>工作经历</a></li><li class=nav-item><a class=smooth-scroll href=/zh/#education>教育</a></li><li class=nav-item><a class=smooth-scroll href=/zh/#recent-posts>近期文章</a></li><li class=nav-item><a class=smooth-scroll href=/zh/#accomplishments>技能学习</a></li><li class=nav-item><a class=smooth-scroll href=https://live.mengz.dev/>LiveTerm</a></li></ul></div><div class="col-md-4 col-sm-12"><h5>Contact me:</h5><ul><li><a href=mailto:mengz.you@outlook.com target=_blank rel=noopener><span><i class="fas fa-envelope"></i></span> <span>mengz.you@outlook.com</span></a></li><li><a href=https://github.com/mengzyou target=_blank rel=noopener><span><i class="fab fa-github"></i></span> <span>mengzyou</span></a></li><li><a href=https://www.linkedin.com/in/mengzyou target=_blank rel=noopener><span><i class="fab fa-linkedin"></i></span> <span>You Mengzhe</span></a></li></ul></div></div></div><hr><div class=container><div class="row text-left"><div class=col-md-4><a id=theme href=https://github.com/hugo-toha/toha target=_blank rel=noopener><img src=/images/theme-logo_hu8376fd15465fef26ffe66b6bcf0ca686_13669_32x0_resize_box_3.png alt="Toha Theme Logo">
 Toha</a></div><div class="col-md-4 text-center">© 2023 Copyright.</div><div class="col-md-4 text-right"><a id=hugo href=https://gohugo.io/ target=_blank rel=noopener>Powered by
-<img src=/images/hugo-logo.svg alt="Hugo Logo" height=18></a></div></div></div></footer><script src=/application.3a5dc6f6edf444220577fde63dd8a6b0865ff126da2e44f5c359b58f04490c5a.js integrity="sha256-Ol3G9u30RCIFd/3mPdimsIZf8SbaLkT1w1m1jwRJDFo=" defer></script>
+<img src=/images/hugo-logo.svg alt="Hugo Logo" height=18></a></div></div></div></footer><script src=/application.3f98eac98ee0e5efd906fd54a896210d7d275efa5f73c9f8712612a554846688.js integrity="sha256-P5jqyY7g5e/ZBv1UqJYhDX0nXvpfc8n4cSYSpVSEZog=" defer></script>
 <script src=https://storage.ko-fi.com/cdn/scripts/overlay-widget.js></script>
 <script>kofiWidgetOverlay.draw("mengz",{type:"floating-chat","floating-chat.donateButton.text":"Buy me a book","floating-chat.donateButton.text-color":"#f9fafc","floating-chat.donateButton.background-color":"#248aaa"})</script></body></html>
