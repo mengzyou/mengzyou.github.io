@@ -22,6 +22,6 @@ openGraph:
   title: 梦哲的个人空间
   type: website
   locale: zh_CN
-  description: "梦哲的个人空间和博客文章，SRE的工作记录"
+  description: "梦哲的个人空间和博客文章，一个SRE的工作历程"
   image: https://images.mengz.dev/posts/homepage-zh.webp
   url: https://mengz.dev/zh/

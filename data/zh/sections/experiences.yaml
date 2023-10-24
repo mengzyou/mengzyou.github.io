@@ -17,17 +17,17 @@ experiences:
     # company overview
     overview: 可操作的洞察引擎，创建产品和解决方案，使行业更加高效、安全、安全和可靠。
   positions:
-  - designation: DEVOPS架构师，SRE
+  - designation: SRE，软件交付经理
     start: 2016年1月
     # don't provide end date if you are currently working there. It will be replaced by "Present"
     # end: Dec 2020
     # give some points about what was your responsibilities at the company.
     responsibilities:
-    - 设计并维护公司基础设施环境(包括开发、测试、生产)，并实现运维可观测性能力
-    - DEVOPS工作文化和团队建设,推进传统运维向云原生、自动化方向发展
-    - 设计并制定研发部门代码管理规范、CI/CD流水线、服务交付以及持续反馈等流程 
-    - 管理公司IT资源，控制IT资源成本
-    - 研发团队管理，规划研发团队工作流程
+    - 管理研发部门基础设施(包括开发、测试、生产)，实现软件产品高效研发和交付流程
+    - 挖掘客户需求，提供高效的解决方案
+    - 研发团队DEVOPS文化建设，推进云原生、自动化和大数据技术
+    - 负责IT资源优化，提升研发效能和成本
+    - 负责产品交付，保障产品质量和安全以及客户满意
 
 - company:
     name: 爱立信（中国）
@@ -39,19 +39,19 @@ experiences:
     start: 2012年5月
     end: 2015年9月
     responsibilities:
-    - 根据NPS产品客户需求，为客户设计和交付定制化功能服务
+    - 根据产品客户需求，为客户设计和交付定制化产品服务
     - 维护客户生产环境系统，为客户解决系统在生产环境中的技术问题
-    - 为客户提供24x7x365的技术支持服务，保障系统在客户环境的稳定运行
+    - 为客户提供24x7技术支持服务，保障系统在客户环境的稳定运行
 
   - designation:  软件开发工程师
     start: 2010年3月
     end: 2012年4月
     responsibilities:
-    - 为产品进行功能开发维护和平台迁移
-    - 为产品编写升级脚本，保障数据和配置的兼容性
+    - 根据产品需求，进行功能开发维护和相关运维工作
+    - 实现产品升级需求，完善升级脚本，保障客户线上系统的稳定运行
 
 - company:
-    name: TCL通讯科技.
+    name: TCL通讯科技
     url: "https://www.tclcom.com/"
     location: 深圳
     overview: 专注于为全球消费者提供TCL和Alcatel 两个品牌移动通信终端产品，成为受人尊敬和最具创新能力的全球领先企业。
@@ -60,6 +60,6 @@ experiences:
     start: 2008年7月
     end: 2010年3月
     responsibilities:
-    - 基于Windows Mobile系统的GPS驱动开发，为基于WM系统的智能手机实现定位功能
-    - 手机桌面应用开发（自定义桌面主题）
-    - 编写自动化测试脚本，为开发的驱动程序进行自动化测试
+    - Windows移动产品开发，集成GPS芯片，实现GPS定位功能
+    - 移动应用桌面开发，实现自定义桌面环境
+    - 编写自动化测试脚本，实现移动产品功能的自动化测试

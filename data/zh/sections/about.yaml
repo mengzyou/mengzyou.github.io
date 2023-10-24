@@ -75,17 +75,17 @@ badges:
   badge: "https://images.mengz.dev/posts/certificate-landing-page-coursera-gcfci.webp"
 
 - type: soft-skill-indicator
-  name: 领导力
-  percentage: 85
-  color: blue
-
-- type: soft-skill-indicator
   name: 团队协作
   percentage: 90
   color: yellow
 
 - type: soft-skill-indicator
-  name: 拼搏
+  name: 领导力
+  percentage: 85
+  color: blue
+
+- type: soft-skill-indicator
+  name: 责任心
   percentage: 85
   color: orange
 
