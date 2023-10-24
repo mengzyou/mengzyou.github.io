@@ -27,7 +27,7 @@ degrees:
 #     url: "#"
 #   - title: Nullam vitae orci tincidunt purus viverra pulvinar.
 #     url: "#"
-- name: 电子信息工程学士
+- name: 电子信息工程
   icon: fa-graduation-cap
   timeframe: 2004-2008
   institution:
@@ -42,21 +42,22 @@ degrees:
     showGrades: false
     collapseAfter: 3
     courses:
-    - name: C语源程序设计
-      achieved: 73.0
-      outOf: 100
-    - name: 计算机网络
-      achieved: 75.0
+    - name: 信息论
+      achieved: 85
       outOf: 100
     - name: 信号处理系统
       achieved: 65
       outOf: 100
-    - name: 信息论
-      achieved: 85
-      outOf: 100
     - name: 信道编码理论
       achieved: 80
       outOf: 100
+    - name: 计算机网络
+      achieved: 75.0
+      outOf: 100
+    - name: C语源程序设计
+      achieved: 73.0
+      outOf: 100
+
   # publications: #(optional)
   # - title: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
   #   url: "#"
