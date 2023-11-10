@@ -48,6 +48,12 @@ PS C:\Windows\system32> dism.exe /online /enable-feature /featurename:Microsoft-
 PS C:\Windows\system32> dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
 ```
 
+**补充：** 上面的两个操作也可以通过以下命令实现  
+
+```powershell
+PS C:\Windows\system32> Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform, Microsoft-Windows-Subsystem-Linux
+```
+
 完成以上操作之后，需要重启Windows操作系统，重启之后再次登陆系统。  
 接下来需要从微软下载一个最新的Linux内核升级包并安装，下载安装包 [wsl_update_x64.msi](https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi)，下载完成后直接安装。  
 
