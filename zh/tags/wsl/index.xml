@@ -7,9 +7,8 @@ Windows 10 版本 1903 Build 19362，或高于该版本 如果是ARM64的系统�
 在打开的 PowerShell 终端，执行如下命令：
 PS C:\Windows\system32&amp;gt; dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart [dism.exe]是Windows的部署映像服务和管理工具，上面的命令开启了WSL的功能。
 以上命令执行成功之后，继续执行如下命令来开启Hyper-V的功能
-PS C:\Windows\system32&amp;gt; dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart 完成以上操作之后，需要重启Windows操作系统，重启之后再次登陆系统。
+PS C:\Windows\system32&amp;gt; dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart 补充： 上面的两个操作也可以通过以下命令实现
+PS C:\Windows\system32&amp;gt; Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform, Microsoft-Windows-Subsystem-Linux 完成以上操作之后，需要重启Windows操作系统，重启之后再次登陆系统。
 接下来需要从微软下载一个最新的Linux内核升级包并安装，下载安装包 wsl_update_x64.msi，下载完成后直接安装。
 完成之后，以管理员身份运行 PowerShell，执行如下命令来设置wsl使用的默认版本
-PS C:\Windows\system32&amp;gt; wsl --set-default-version 2 这里我们将默认设置为 wsl 2 。
-上述步骤就完成了WSL2的启用，接下来将使用WSL2安装基于Linux的发行版本（Ubuntu 20.04）。
-步骤二　- 使用WSL安装Ubuntu 20.</description></item></channel></rss>
+PS C:\Windows\system32&amp;gt; wsl --set-default-version 2 这里我们将默认设置为 wsl 2 。</description></item></channel></rss>
